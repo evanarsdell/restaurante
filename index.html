@@ -2,224 +2,457 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>La Bella Vita - Fine Italian Restaurant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>La Bella Vita - Authentic Italian Cuisine & Wine</title>
   <style>
-    /* Reset styling */
+    /* Base reset */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
-    /* Body styling */
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f5f5f5;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      background-color: #fdfdfd;
       color: #333;
     }
-    
-    /* Header styling */
     header {
-      background: #8B0000;
-      color: white;
-      padding: 20px;
+      background-color: #8B0000;
+      color: #fff;
       text-align: center;
+      padding: 30px 20px;
     }
-    
     header h1 {
+      font-size: 3em;
       margin-bottom: 10px;
-      font-size: 2.5em;
     }
-    
     header p {
-      font-size: 1.2em;
+      font-size: 1.3em;
     }
-    
-    /* Navigation styling */
     nav {
-      background: #333;
+      background-color: #333;
       display: flex;
+      flex-wrap: wrap;
       justify-content: center;
-      align-items: center;
-      position: relative;
     }
-    
-    nav button, nav .dropbtn {
-      background: #333;
+    nav button {
+      background-color: #333;
       color: #fff;
       border: none;
       padding: 14px 20px;
       cursor: pointer;
       font-size: 1em;
     }
-    
-    nav button:hover, nav .dropbtn:hover {
-      background: #555;
+    nav button:hover {
+      background-color: #555;
     }
-    
-    /* Dropdown container */
-    .dropdown {
-      position: relative;
-      display: inline-block;
-    }
-    
-    /* Dropdown content (hidden by default) */
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #444;
-      min-width: 160px;
-      z-index: 1;
-    }
-    
-    .dropdown-content button {
-      width: 100%;
-      text-align: left;
-      padding: 12px 16px;
-      border: none;
-      background: none;
-      color: white;
-      cursor: pointer;
-      border-top: 1px solid #555;
-    }
-    
-    .dropdown-content button:hover {
-      background: #555;
-    }
-    
-    /* Main content area */
     .main-content {
       padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
-    
-    /* Section styling: all sections are hidden initially except the active one */
     .section {
       display: none;
-      animation: fadeIn 0.5s;
+      animation: fadeIn 0.5s ease-in-out;
+      padding-bottom: 40px;
     }
-    
     .section.active {
       display: block;
     }
-    
-    /* Simple fade-in animation */
     @keyframes fadeIn {
-      from {opacity: 0;}
-      to {opacity: 1;}
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
-    
-    /* Footer styling */
+    h2 {
+      margin: 20px 0 10px;
+      color: #8B0000;
+    }
+    .menu-section {
+      margin-bottom: 30px;
+    }
+    .menu-item, .wine-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 20px;
+    }
+    .menu-item:last-child, .wine-item:last-child {
+      border-bottom: none;
+    }
+    .item-image, .wine-image {
+      flex: 0 0 auto;
+      margin-right: 20px;
+    }
+    /* Placeholder image style using inline SVG */
+    .item-image svg, .wine-image svg, .italy-map svg {
+      width: 200px;
+      height: 150px;
+      border: 1px solid #ccc;
+      background-color: #eee;
+    }
+    .item-details, .wine-details {
+      flex: 1;
+    }
+    /* Italy map styling */
+    .italy-map {
+      text-align: center;
+      margin: 30px 0;
+    }
+    .italy-map svg {
+      width: 300px;
+      height: 400px;
+      border: 2px solid #aaa;
+      background-color: #fafafa;
+    }
+    /* Reservations form styling */
+    form.reservation-form {
+      max-width: 500px;
+      margin: 0 auto;
+      background: #f8f8f8;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    form.reservation-form label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    form.reservation-form input,
+    form.reservation-form select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 2px;
+    }
+    form.reservation-form button {
+      background-color: #8B0000;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 1em;
+      width: 100%;
+      border-radius: 2px;
+    }
+    form.reservation-form button:hover {
+      background-color: #a50000;
+    }
     footer {
-      background: #333;
+      background-color: #333;
       color: #fff;
       text-align: center;
-      padding: 10px;
-      margin-top: 20px;
+      padding: 15px;
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
-
   <header>
     <h1>La Bella Vita</h1>
-    <p>Experience the true taste of Italy</p>
+    <p>Authentic Italian Cuisine & Exceptional Wines</p>
   </header>
-  
+
   <nav>
     <button onclick="showSection('home')">Home</button>
-    
-    <div class="dropdown">
-      <button class="dropbtn" onclick="toggleDropdown()">Menu ▾</button>
-      <div id="dropdown-menu" class="dropdown-content">
-        <button onclick="showSection('food'); toggleDropdown();">Food</button>
-        <button onclick="showSection('drinks'); toggleDropdown();">Drinks</button>
-        <button onclick="showSection('happy-hour'); toggleDropdown();">Happy Hour</button>
-      </div>
-    </div>
-    
+    <button onclick="showSection('cuisine')">Cuisine Menu</button>
+    <button onclick="showSection('wine')">Wine Menu</button>
+    <button onclick="showSection('reservations')">Reservations</button>
     <button onclick="showSection('about')">About</button>
   </nav>
-  
+
   <div class="main-content">
     <!-- Home Section -->
-    <div id="home" class="section active">
+    <section id="home" class="section active">
       <h2>Welcome to La Bella Vita</h2>
-      <p>At La Bella Vita, we serve you the finest Italian cuisine with a modern twist. Enjoy our authentic dishes prepared with the freshest ingredients. Whether you're joining us for a luxurious dinner or a casual lunch, we welcome you with warmth and elegance.</p>
-    </div>
-    
-    <!-- Food Menu Section -->
-    <div id="food" class="section">
-      <h2>Our Food Menu</h2>
-      <ul>
-        <li><strong>Bruschetta:</strong> Fresh tomatoes, basil, and garlic on toasted bread.</li>
-        <li><strong>Margherita Pizza:</strong> Classic pizza with mozzarella, tomatoes, and basil.</li>
-        <li><strong>Fettuccine Alfredo:</strong> Pasta served in a creamy garlic parmesan sauce.</li>
-        <li><strong>Tiramisu:</strong> Traditional Italian dessert with coffee-soaked ladyfingers and mascarpone cream.</li>
-      </ul>
-    </div>
-    
-    <!-- Drinks Section -->
-    <div id="drinks" class="section">
-      <h2>Drinks Selection</h2>
-      <ul>
-        <li><strong>Chianti:</strong> A robust red wine to complement your meal.</li>
-        <li><strong>Pinot Grigio:</strong> A crisp white wine perfect for a light appetizer.</li>
-        <li><strong>Espresso:</strong> The perfect finish to your dining experience.</li>
-        <li><strong>Limoncello:</strong> A delightful chilled lemon liqueur.</li>
-      </ul>
-    </div>
-    
-    <!-- Happy Hour Section -->
-    <div id="happy-hour" class="section">
-      <h2>Happy Hour Specials</h2>
-      <p>Join us for happy hour every weekday from 4:00 PM to 6:00 PM. Enjoy discounted drinks, special appetizers, and a lively atmosphere – the perfect way to unwind after a long day.</p>
-      <ul>
-        <li><strong>Half-Price Wines</strong></li>
-        <li><strong>Discounted Cocktails</strong></li>
-        <li><strong>Special Small Plates</strong></li>
-      </ul>
-    </div>
-    
+      <p>Step into a world of Italian passion and culinary excellence. At La Bella Vita, every dish tells a story—crafted with traditional recipes and a modern twist. We invite you to explore our exquisite menus and indulge in flavors that transport you straight to Italy.</p>
+    </section>
+
+    <!-- Cuisine Menu Section -->
+    <section id="cuisine" class="section">
+      <h2>Our Authentic Italian Cuisine</h2>
+      <!-- Antipasti -->
+      <div class="menu-section">
+        <h3>Antipasti</h3>
+        <div class="menu-item">
+          <div class="item-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Bruschetta Photo</text>
+            </svg>
+          </div>
+          <div class="item-details">
+            <h4>Bruschetta al Pomodoro</h4>
+            <p>Toasted rustic bread rubbed with garlic and topped with vine‑ripe tomatoes, basil, olive oil, and a sprinkle of sea salt. A refreshing start to your Italian feast.</p>
+            <p><strong>Price:</strong> €8</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="item-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Caprese Photo</text>
+            </svg>
+          </div>
+          <div class="item-details">
+            <h4>Insalata Caprese</h4>
+            <p>Fresh slices of buffalo mozzarella, vine‑ripe tomatoes, and basil drizzled with extra‑virgin olive oil and a balsamic reduction—a timeless combination of Italian flavors.</p>
+            <p><strong>Price:</strong> €10</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Primi Piatti -->
+      <div class="menu-section">
+        <h3>Primi Piatti</h3>
+        <div class="menu-item">
+          <div class="item-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Carbonara Photo</text>
+            </svg>
+          </div>
+          <div class="item-details">
+            <h4>Spaghetti alla Carbonara</h4>
+            <p>Classic Roman pasta dish with al dente spaghetti, crispy pancetta, eggs, Pecorino Romano, and black pepper. Rich, creamy, and utterly satisfying.</p>
+            <p><strong>Price:</strong> €14</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="item-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Risotto Photo</text>
+            </svg>
+          </div>
+          <div class="item-details">
+            <h4>Risotto ai Funghi Porcini</h4>
+            <p>Creamy Arborio rice simmered in a savory mushroom broth with porcini mushrooms and finished with a touch of truffle oil, offering a sublime taste of the forest.</p>
+            <p><strong>Price:</strong> €16</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Secondi Piatti -->
+      <div class="menu-section">
+        <h3>Secondi Piatti</h3>
+        <div class="menu-item">
+          <div class="item-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Osso Buco Photo</text>
+            </svg>
+          </div>
+          <div class="item-details">
+            <h4>Osso Buco alla Milanese</h4>
+            <p>Tender veal shanks braised in white wine and aromatic vegetables, served with gremolata and a side of saffron risotto—a true northern Italian specialty.</p>
+            <p><strong>Price:</strong> €22</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="item-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Saltimbocca Photo</text>
+            </svg>
+          </div>
+          <div class="item-details">
+            <h4>Saltimbocca alla Romana</h4>
+            <p>Delicate veal cutlets layered with prosciutto and fresh sage, lightly sautéed in white wine butter for a harmonious balance of savory and herbal notes.</p>
+            <p><strong>Price:</strong> €20</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dolci -->
+      <div class="menu-section">
+        <h3>Dolci</h3>
+        <div class="menu-item">
+          <div class="item-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Tiramisu Photo</text>
+            </svg>
+          </div>
+          <div class="item-details">
+            <h4>Tiramisu</h4>
+            <p>Classic Italian dessert of espresso‑soaked ladyfingers layered with mascarpone cream and dusted with cocoa powder—a delightful end to your meal.</p>
+            <p><strong>Price:</strong> €9</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <div class="item-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Gelato Photo</text>
+            </svg>
+          </div>
+          <div class="item-details">
+            <h4>Gelato Artigianale</h4>
+            <p>Handcrafted Italian ice cream available in a variety of flavors—from rich chocolate to zesty lemon—made with the finest natural ingredients.</p>
+            <p><strong>Price:</strong> €7</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Wine Menu Section -->
+    <section id="wine" class="section">
+      <h2>Our Exquisite Wine Collection</h2>
+      <p>Discover a wine list carefully curated to complement every dish. Our selection showcases Italy’s storied vineyards and regional specialties.</p>
+      <!-- Wine Menu Items -->
+      <div class="menu-section">
+        <div class="wine-item">
+          <div class="wine-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Chianti Photo</text>
+            </svg>
+          </div>
+          <div class="wine-details">
+            <h4>Chianti Classico</h4>
+            <p>A medium‑bodied red with notes of cherry, spice, and subtle oak—an enduring symbol of Tuscany’s winemaking tradition.</p>
+            <p><strong>€18 per glass</strong> / €70 per bottle</p>
+          </div>
+        </div>
+        <div class="wine-item">
+          <div class="wine-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Barolo Photo</text>
+            </svg>
+          </div>
+          <div class="wine-details">
+            <h4>Barolo</h4>
+            <p>A robust red from Piedmont with intense aromas of dark fruit, leather, and tar—perfect for pairing with rich, meaty dishes.</p>
+            <p><strong>€22 per glass</strong> / €90 per bottle</p>
+          </div>
+        </div>
+        <div class="wine-item">
+          <div class="wine-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Brunello Photo</text>
+            </svg>
+          </div>
+          <div class="wine-details">
+            <h4>Brunello di Montalcino</h4>
+            <p>An elegant red with layers of fruit, tobacco, and earthy nuances, reflecting the unique terroir of Tuscany’s Montalcino region.</p>
+            <p><strong>€25 per glass</strong> / €110 per bottle</p>
+          </div>
+        </div>
+        <div class="wine-item">
+          <div class="wine-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Pinot Grigio Photo</text>
+            </svg>
+          </div>
+          <div class="wine-details">
+            <h4>Pinot Grigio</h4>
+            <p>A refreshing white wine with crisp acidity, hints of green apple and pear—a perfect match for seafood and light pasta dishes.</p>
+            <p><strong>€15 per glass</strong> / €55 per bottle</p>
+          </div>
+        </div>
+        <div class="wine-item">
+          <div class="wine-image">
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <rect width="100%" height="100%" fill="#ddd" />
+              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#555" font-size="14">Prosecco Photo</text>
+            </svg>
+          </div>
+          <div class="wine-details">
+            <h4>Prosecco</h4>
+            <p>Bubbly and vibrant, this sparkling wine offers crisp notes and delicate fruit aromas, ideal for celebrations or as an aperitif.</p>
+            <p><strong>€12 per glass</strong> / €45 per bottle</p>
+          </div>
+        </div>
+      </div>
+      <!-- Map of Italy -->
+      <div class="italy-map">
+        <h3>Explore Italy’s Wine Regions</h3>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 480">
+          <rect x="5" y="5" width="310" height="470" fill="#fafafa" stroke="#666" stroke-width="2"/>
+          <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#666" font-size="18">
+            Map of Italy
+          </text>
+        </svg>
+        <p style="margin-top:10px;">Discover the diverse terroirs—from the rolling hills of Tuscany to the rugged vineyards of Piedmont—that create Italy’s signature wines.</p>
+      </div>
+    </section>
+
+    <!-- Reservations Section -->
+    <section id="reservations" class="section">
+      <h2>Reserve Your Table</h2>
+      <p>Experience an unforgettable dining experience. Fill out the form below to book your table at La Bella Vita.</p>
+      <form class="reservation-form" onsubmit="submitReservation(event)">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" placeholder="Your full name" required>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="you@example.com" required>
+
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" placeholder="Phone number" required>
+
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date" required>
+
+        <label for="time">Time</label>
+        <input type="time" id="time" name="time" required>
+
+        <label for="guests">Number of Guests</label>
+        <select id="guests" name="guests" required>
+          <option value="">Select</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10+</option>
+        </select>
+
+        <button type="submit">Book Now!</button>
+      </form>
+    </section>
+
     <!-- About Section -->
-    <div id="about" class="section">
-      <h2>About Us</h2>
-      <p>La Bella Vita was founded with a passion for authentic Italian cuisine and a dream to bring the heart of Italy to your table. Our chefs blend traditional recipes with modern culinary techniques to create an unforgettable dining experience. We believe in quality, passion, and the joy of good food.</p>
-    </div>
+    <section id="about" class="section">
+      <h2>About La Bella Vita</h2>
+      <p>Founded with a passion for authentic Italian flavors and hospitality, La Bella Vita bridges tradition and innovation. Our chefs expertly prepare dishes using the freshest seasonal ingredients, honoring centuries‑old recipes while adding a modern twist.</p>
+      <p>Whether you’re here for an intimate dinner or a lively celebration, our warm ambiance and attentive service promise an experience that feels like a true homecoming.</p>
+    </section>
   </div>
-  
+
   <footer>
     <p>&copy; 2025 La Bella Vita. All rights reserved.</p>
   </footer>
-  
+
   <script>
-    // Function to display the selected section and hide others
+    // Function to show a specific section while hiding the others.
     function showSection(sectionId) {
-      var sections = document.getElementsByClassName('section');
-      for (var i = 0; i < sections.length; i++) {
-        sections[i].classList.remove('active');
-      }
+      var sections = document.querySelectorAll('.section');
+      sections.forEach(function(section) {
+        section.classList.remove('active');
+      });
       document.getElementById(sectionId).classList.add('active');
+      // Scroll to top of page when changing sections.
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    
-    // Toggle the dropdown menu visibility
-    function toggleDropdown() {
-      var dropdown = document.getElementById('dropdown-menu');
-      if (dropdown.style.display === "block") {
-        dropdown.style.display = "none";
-      } else {
-        dropdown.style.display = "block";
-      }
-    }
-    
-    // Close dropdown if clicked outside of the button
-    window.onclick = function(event) {
-      if (!event.target.matches('.dropbtn')) {
-        var dropdown = document.getElementById('dropdown-menu');
-        if (dropdown.style.display === "block") {
-          dropdown.style.display = "none";
-        }
-      }
+
+    // Reservation form submission handler.
+    function submitReservation(event) {
+      event.preventDefault();
+      alert("Thank you for your reservation request! We will contact you shortly to confirm your booking.");
+      // Reset the form after submission.
+      event.target.reset();
     }
   </script>
 </body>
