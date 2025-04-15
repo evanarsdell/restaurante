@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Bella Vita - Fine Italian Restaurant</title>
+  <style>
+    /* Reset styling */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    /* Body styling */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+    
+    /* Header styling */
+    header {
+      background: #8B0000;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    header h1 {
+      margin-bottom: 10px;
+      font-size: 2.5em;
+    }
+    
+    header p {
+      font-size: 1.2em;
+    }
+    
+    /* Navigation styling */
+    nav {
+      background: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    
+    nav button, nav .dropbtn {
+      background: #333;
+      color: #fff;
+      border: none;
+      padding: 14px 20px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    
+    nav button:hover, nav .dropbtn:hover {
+      background: #555;
+    }
+    
+    /* Dropdown container */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    
+    /* Dropdown content (hidden by default) */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #444;
+      min-width: 160px;
+      z-index: 1;
+    }
+    
+    .dropdown-content button {
+      width: 100%;
+      text-align: left;
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      color: white;
+      cursor: pointer;
+      border-top: 1px solid #555;
+    }
+    
+    .dropdown-content button:hover {
+      background: #555;
+    }
+    
+    /* Main content area */
+    .main-content {
+      padding: 20px;
+    }
+    
+    /* Section styling: all sections are hidden initially except the active one */
+    .section {
+      display: none;
+      animation: fadeIn 0.5s;
+    }
+    
+    .section.active {
+      display: block;
+    }
+    
+    /* Simple fade-in animation */
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    
+    /* Footer styling */
+    footer {
+      background: #333;
+      color: #fff;
+      text-align: center;
+      padding: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>La Bella Vita</h1>
+    <p>Experience the true taste of Italy</p>
+  </header>
+  
+  <nav>
+    <button onclick="showSection('home')">Home</button>
+    
+    <div class="dropdown">
+      <button class="dropbtn" onclick="toggleDropdown()">Menu ▾</button>
+      <div id="dropdown-menu" class="dropdown-content">
+        <button onclick="showSection('food'); toggleDropdown();">Food</button>
+        <button onclick="showSection('drinks'); toggleDropdown();">Drinks</button>
+        <button onclick="showSection('happy-hour'); toggleDropdown();">Happy Hour</button>
+      </div>
+    </div>
+    
+    <button onclick="showSection('about')">About</button>
+  </nav>
+  
+  <div class="main-content">
+    <!-- Home Section -->
+    <div id="home" class="section active">
+      <h2>Welcome to La Bella Vita</h2>
+      <p>At La Bella Vita, we serve you the finest Italian cuisine with a modern twist. Enjoy our authentic dishes prepared with the freshest ingredients. Whether you're joining us for a luxurious dinner or a casual lunch, we welcome you with warmth and elegance.</p>
+    </div>
+    
+    <!-- Food Menu Section -->
+    <div id="food" class="section">
+      <h2>Our Food Menu</h2>
+      <ul>
+        <li><strong>Bruschetta:</strong> Fresh tomatoes, basil, and garlic on toasted bread.</li>
+        <li><strong>Margherita Pizza:</strong> Classic pizza with mozzarella, tomatoes, and basil.</li>
+        <li><strong>Fettuccine Alfredo:</strong> Pasta served in a creamy garlic parmesan sauce.</li>
+        <li><strong>Tiramisu:</strong> Traditional Italian dessert with coffee-soaked ladyfingers and mascarpone cream.</li>
+      </ul>
+    </div>
+    
+    <!-- Drinks Section -->
+    <div id="drinks" class="section">
+      <h2>Drinks Selection</h2>
+      <ul>
+        <li><strong>Chianti:</strong> A robust red wine to complement your meal.</li>
+        <li><strong>Pinot Grigio:</strong> A crisp white wine perfect for a light appetizer.</li>
+        <li><strong>Espresso:</strong> The perfect finish to your dining experience.</li>
+        <li><strong>Limoncello:</strong> A delightful chilled lemon liqueur.</li>
+      </ul>
+    </div>
+    
+    <!-- Happy Hour Section -->
+    <div id="happy-hour" class="section">
+      <h2>Happy Hour Specials</h2>
+      <p>Join us for happy hour every weekday from 4:00 PM to 6:00 PM. Enjoy discounted drinks, special appetizers, and a lively atmosphere – the perfect way to unwind after a long day.</p>
+      <ul>
+        <li><strong>Half-Price Wines</strong></li>
+        <li><strong>Discounted Cocktails</strong></li>
+        <li><strong>Special Small Plates</strong></li>
+      </ul>
+    </div>
+    
+    <!-- About Section -->
+    <div id="about" class="section">
+      <h2>About Us</h2>
+      <p>La Bella Vita was founded with a passion for authentic Italian cuisine and a dream to bring the heart of Italy to your table. Our chefs blend traditional recipes with modern culinary techniques to create an unforgettable dining experience. We believe in quality, passion, and the joy of good food.</p>
+    </div>
+  </div>
+  
+  <footer>
+    <p>&copy; 2025 La Bella Vita. All rights reserved.</p>
+  </footer>
+  
+  <script>
+    // Function to display the selected section and hide others
+    function showSection(sectionId) {
+      var sections = document.getElementsByClassName('section');
+      for (var i = 0; i < sections.length; i++) {
+        sections[i].classList.remove('active');
+      }
+      document.getElementById(sectionId).classList.add('active');
+    }
+    
+    // Toggle the dropdown menu visibility
+    function toggleDropdown() {
+      var dropdown = document.getElementById('dropdown-menu');
+      if (dropdown.style.display === "block") {
+        dropdown.style.display = "none";
+      } else {
+        dropdown.style.display = "block";
+      }
+    }
+    
+    // Close dropdown if clicked outside of the button
+    window.onclick = function(event) {
+      if (!event.target.matches('.dropbtn')) {
+        var dropdown = document.getElementById('dropdown-menu');
+        if (dropdown.style.display === "block") {
+          dropdown.style.display = "none";
+        }
+      }
+    }
+  </script>
+</body>
+</html>
