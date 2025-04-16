@@ -3,371 +3,412 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-  <title>Sexy 3D Shooter Revamped</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <title>Ultimate 3D Shooter</title>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: #000;
-      touch-action: none;
+    /* Basic reset */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; overflow:hidden; background:#000; touch-action:none; }
+    canvas { display:block; }
+
+    /* Start & Game Over Overlays */
+    .overlay {
+      position:absolute; top:0; left:0; width:100%; height:100%;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(0,0,0,0.8); color:#fff;
+      font-family:sans-serif; font-size:2rem; z-index:20;
+      flex-direction:column;
     }
-    canvas {
-      display: block;
+    #startOverlay { cursor: pointer; }
+    #gameOverOverlay button {
+      margin-top:1rem; padding:0.5rem 1rem;
+      font-size:1rem; border:none; border-radius:5px;
+      background:#f00; color:#000; cursor:pointer;
     }
+
     /* HUD */
     #hud {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      color: #0f0;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 18px;
-      z-index: 10;
-      text-shadow: 0 0 4px rgba(0,255,0,0.7);
+      position:absolute; top:1rem; left:1rem;
+      font-family:'Orbitron',sans-serif; color:#0f0;
+      text-shadow:0 0 4px rgba(0,255,0,0.7);
+      z-index:15; font-size:1rem;
     }
-    #hud span {
-      margin-right: 30px;
-    }
-    /* Game Over Overlay */
-    #gameover {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: #f00;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 48px;
-      text-align: center;
-      display: none;
-      z-index: 20;
-    }
-    #gameover button {
-      margin-top: 20px;
-      padding: 12px 24px;
-      font-size: 20px;
-      border: none;
-      border-radius: 6px;
-      background: #f00;
-      color: #000;
-      cursor: pointer;
-      text-shadow: 0 0 4px #000;
-    }
+    #hud span { margin-right:2rem; }
+
     /* Joystick */
-    #joystickContainer {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      width: 120px;
-      height: 120px;
-      z-index: 15;
-      touch-action: none;
+    #joystick {
+      position:absolute; bottom:1rem; left:1rem;
+      width:120px; height:120px; z-index:15;
     }
-    #joystickBase {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.1);
-      border: 2px solid rgba(255,255,255,0.3);
+    #joyBase, #joyThumb {
+      position:absolute; border-radius:50%; touch-action:none;
     }
-    #joystickThumb {
-      position: absolute;
-      width: 48px;
-      height: 48px;
-      top: 36px;
-      left: 36px;
-      border-radius: 50%;
-      background: rgba(0,255,255,0.7);
-      box-shadow: 0 0 12px rgba(0,255,255,0.9);
-      touch-action: none;
+    #joyBase {
+      width:100%; height:100%; background:rgba(255,255,255,0.1);
+      border:2px solid rgba(255,255,255,0.3);
     }
+    #joyThumb {
+      width:48px; height:48px; top:36px; left:36px;
+      background:rgba(0,255,255,0.7);
+      box-shadow:0 0 12px rgba(0,255,255,0.9);
+    }
+
     /* Fire Button */
-    #shootButton {
-      position: absolute;
-      bottom: 40px;
-      right: 20px;
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #f00, #800);
-      border: 4px solid #fff;
-      font-family: sans-serif;
-      font-size: 18px;
-      color: #fff;
-      text-shadow: 0 0 4px #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 15;
-      touch-action: none;
+    #fireBtn {
+      position:absolute; bottom:2rem; right:1rem;
+      width:100px; height:100px; border-radius:50%;
+      background:radial-gradient(circle at 30% 30%,#f00,#800);
+      border:4px solid #fff; display:flex;
+      align-items:center; justify-content:center;
+      font-family:sans-serif; color:#fff; font-size:1rem;
+      z-index:15; touch-action:none; user-select:none;
     }
-    #shootButton:active {
-      transform: scale(0.9);
-    }
+    #fireBtn:active { transform:scale(0.9); }
   </style>
 </head>
 <body>
+  <!-- Overlays -->
+  <div id="startOverlay" class="overlay">
+    Tap to START
+  </div>
+  <div id="gameOverOverlay" class="overlay" style="display:none;">
+    GAME OVER
+    <button id="restartBtn">Restart</button>
+  </div>
+
   <!-- HUD -->
   <div id="hud">
     <span id="score">Score: 0</span>
     <span id="health">Health: 100</span>
   </div>
 
-  <!-- Game Over -->
-  <div id="gameover">
-    GAME OVER
-    <br>
-    <button id="restart">Restart</button>
+  <!-- Controls -->
+  <div id="joystick">
+    <div id="joyBase"></div>
+    <div id="joyThumb"></div>
   </div>
-
-  <!-- Joystick -->
-  <div id="joystickContainer">
-    <div id="joystickBase"></div>
-    <div id="joystickThumb"></div>
-  </div>
-
-  <!-- Fire Button -->
-  <div id="shootButton">FIRE</div>
+  <div id="fireBtn">FIRE</div>
 
   <!-- Three.js -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
   <script>
-    let scene, camera, renderer, ship, starField
-    let bullets = [], enemies = [], score = 0, health = 100, gameOver = false
-    let lastSpawn = 0
-    const bulletRadius = 0.1
-    const joystick = { x: 0, y: 0, id: null }
-    let shootTouchId = null, shootInterval = null
+  // ——————— Object Pool Helper ———————
+  class Pool {
+    constructor(createFn) {
+      this.createFn = createFn;
+      this.items = [];
+    }
+    obtain() {
+      return this.items.length ? this.items.pop() : this.createFn();
+    }
+    release(item) {
+      this.items.push(item);
+    }
+  }
 
-    function init() {
-      // Renderer & Scene
-      scene = new THREE.Scene()
-      camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 500)
-      camera.position.set(0, 3, 12)
-      camera.lookAt(0,0,0)
-      renderer = new THREE.WebGLRenderer({antialias:true})
-      renderer.setSize(innerWidth, innerHeight)
-      document.body.appendChild(renderer.domElement)
+  // ——————— Bullet Class ———————
+  class Bullet {
+    constructor() {
+      const geo = new THREE.SphereGeometry(0.1, 8, 8);
+      const mat = new THREE.MeshBasicMaterial({ color:0xffff00 });
+      this.mesh = new THREE.Mesh(geo, mat);
+      this.vel = new THREE.Vector3(0,0,-1);
+    }
+    spawn(pos) {
+      this.mesh.position.copy(pos);
+      scene.add(this.mesh);
+    }
+    update(dt) {
+      this.mesh.position.addScaledVector(this.vel, dt * 0.6);
+      if (this.mesh.position.z < -150) return false;
+      return true;
+    }
+    destroy() {
+      scene.remove(this.mesh);
+      bulletPool.release(this);
+    }
+  }
 
-      // Lights
-      const dirLight = new THREE.DirectionalLight(0xffffff,1)
-      dirLight.position.set(5,10,7)
-      scene.add(dirLight)
-      scene.add(new THREE.AmbientLight(0x202020))
+  // ——————— Enemy Class ———————
+  class Enemy {
+    constructor() {
+      const baseGeo = new THREE.IcosahedronGeometry(1,1);
+      const baseMat = new THREE.MeshPhongMaterial({ color:0xff5555, flatShading:true });
+      this.mesh = new THREE.Mesh(baseGeo, baseMat);
+      this.vel = new THREE.Vector3(0,0,1);
+      this.radius = 1;
+    }
+    spawn() {
+      const r = Math.random()*0.7 + 0.3;
+      this.mesh.scale.set(r,r,r);
+      this.radius = r;
+      this.mesh.position.set((Math.random()-0.5)*12,(Math.random()-0.5)*8,-80);
+      scene.add(this.mesh);
+    }
+    update(dt) {
+      this.mesh.position.addScaledVector(this.vel, dt * (0.08 + Math.random()*0.07));
+      if (this.mesh.position.z > 3) return false;
+      return true;
+    }
+    destroy() {
+      scene.remove(this.mesh);
+      enemyPool.release(this);
+    }
+  }
 
-      // Starfield
-      const starGeo = new THREE.BufferGeometry()
-      const starCount = 800
-      const starPos = new Float32Array(starCount*3)
-      for (let i = 0; i < starCount; i++) {
-        starPos[i*3]   = (Math.random()*2 - 1)*100
-        starPos[i*3+1] = (Math.random()*2 - 1)*100
-        starPos[i*3+2] = (Math.random()*2 - 1)*-300
+  // ——————— Explosion Effect ———————
+  class Explosion {
+    constructor() {
+      const geo = new THREE.SphereGeometry(1, 8,8);
+      const mat = new THREE.MeshBasicMaterial({ color:0xffaa00, transparent:true, opacity:0.8 });
+      this.mesh = new THREE.Mesh(geo, mat);
+      this.lifetime = 0.5;
+    }
+    spawn(pos) {
+      this.mesh.position.copy(pos);
+      this.mesh.scale.set(0.2,0.2,0.2);
+      this.age = 0;
+      scene.add(this.mesh);
+    }
+    update(dt) {
+      this.age += dt;
+      const t = this.age / this.lifetime;
+      this.mesh.scale.setScalar(0.2 + t*2);
+      this.mesh.material.opacity = 0.8 * (1 - t);
+      if (t >= 1) return false;
+      return true;
+    }
+    destroy() {
+      scene.remove(this.mesh);
+      explosionPool.release(this);
+    }
+  }
+
+  // ——————— Global Pools ———————
+  const bulletPool    = new Pool(() => new Bullet());
+  const enemyPool     = new Pool(() => new Enemy());
+  const explosionPool = new Pool(() => new Explosion());
+
+  // ——————— Core Setup ———————
+  let scene, camera, renderer, ship, starField;
+  let bullets = [], enemies = [], explosions = [];
+  let lastSpawn = 0, score = 0, health = 100, gameOver = false;
+  let joystick = { x:0, y:0, id:null },
+      shootTouch = null, shootInterval = null;
+
+  // ——————— Initialization ———————
+  function init() {
+    // Scene + Camera
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,500);
+    camera.position.set(0,3,12);
+    camera.lookAt(0,0,0);
+    // Renderer
+    renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer.setSize(innerWidth, innerHeight);
+    document.body.appendChild(renderer.domElement);
+    // Lights
+    const dl = new THREE.DirectionalLight(0xffffff,1);
+    dl.position.set(5,10,7);
+    scene.add(dl, new THREE.AmbientLight(0x202020));
+    // Starfield
+    const g = new THREE.BufferGeometry();
+    const pts = new Float32Array(800*3);
+    for (let i=0; i<800; i++) {
+      pts[i*3]   = (Math.random()*2-1)*100;
+      pts[i*3+1] = (Math.random()*2-1)*100;
+      pts[i*3+2] = (Math.random()*2-1)*-300;
+    }
+    g.setAttribute('position', new THREE.BufferAttribute(pts,3));
+    starField = new THREE.Points(g, new THREE.PointsMaterial({color:0xffffff, size:0.7}));
+    scene.add(starField);
+    // Ship
+    const sGeo = new THREE.ConeGeometry(0.5,1.5,12);
+    const sMat = new THREE.MeshPhongMaterial({color:0x00ffff});
+    ship = new THREE.Mesh(sGeo, sMat);
+    ship.rotation.x = Math.PI/2;
+    scene.add(ship);
+
+    setupControls();
+    window.addEventListener('resize', onResize);
+    document.getElementById('startOverlay').addEventListener('touchstart', startGame);
+    document.getElementById('restartBtn').addEventListener('click', resetGame);
+  }
+
+  // ——————— Controls Setup ———————
+  function setupControls() {
+    const base = document.getElementById('joyBase');
+    const thumb= document.getElementById('joyThumb');
+    // Joystick touch
+    base.addEventListener('touchstart', e=>{
+      e.preventDefault();
+      if (joystick.id===null) {
+        const t=e.changedTouches[0];
+        joystick.id=t.identifier;
+        updateJoy(t);
       }
-      starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3))
-      starField = new THREE.Points(starGeo, new THREE.PointsMaterial({color:0xffffff, size:0.7}))
-      scene.add(starField)
-
-      // Ship
-      const shipGeo = new THREE.ConeGeometry(0.5,1.5,12)
-      const shipMat = new THREE.MeshPhongMaterial({color:0x00ffff})
-      ship = new THREE.Mesh(shipGeo, shipMat)
-      ship.rotation.x = Math.PI/2
-      scene.add(ship)
-
-      // Joystick
-      const base = document.getElementById('joystickBase')
-      const thumb = document.getElementById('joystickThumb')
-      base.addEventListener('touchstart', e => {
-        e.preventDefault()
-        if (joystick.id === null) {
-          const t = e.changedTouches[0]
-          joystick.id = t.identifier
-          updateJoystick(t)
-        }
-      })
-      base.addEventListener('touchmove', e => {
-        e.preventDefault()
-        for (let t of e.changedTouches) {
-          if (t.identifier === joystick.id) {
-            updateJoystick(t)
-            break
-          }
-        }
-      })
-      base.addEventListener('touchend', e => {
-        e.preventDefault()
-        for (let t of e.changedTouches) {
-          if (t.identifier === joystick.id) {
-            joystick.id = null
-            joystick.x = joystick.y = 0
-            thumb.style.transform = ''
-            break
-          }
-        }
-      })
-
-      // Fire Button
-      const fireBtn = document.getElementById('shootButton')
-      fireBtn.addEventListener('touchstart', e => {
-        e.preventDefault()
-        for (let t of e.changedTouches) {
-          if (shootTouchId === null) {
-            shootTouchId = t.identifier
-            shoot()
-            shootInterval = setInterval(shoot, 200)
-            break
-          }
-        }
-      })
-      fireBtn.addEventListener('touchend', e => {
-        e.preventDefault()
-        for (let t of e.changedTouches) {
-          if (t.identifier === shootTouchId) {
-            clearInterval(shootInterval)
-            shootTouchId = null
-            break
-          }
-        }
-      })
-
-      // Restart
-      document.getElementById('restart')
-        .addEventListener('click', resetGame)
-
-      window.addEventListener('resize', onResize)
-    }
-
-    function updateJoystick(touch) {
-      const rect = document.getElementById('joystickBase').getBoundingClientRect()
-      const cx = rect.left + rect.width/2
-      const cy = rect.top  + rect.height/2
-      const dx = touch.clientX - cx, dy = touch.clientY - cy
-      const dist = Math.hypot(dx,dy), max = rect.width/2
-      const clamped = Math.min(dist, max), angle = Math.atan2(dy,dx)
-      const x = Math.cos(angle)*clamped, y = Math.sin(angle)*clamped
-      document.getElementById('joystickThumb')
-        .style.transform = `translate(${x}px,${y}px)`
-      joystick.x = x/max
-      joystick.y = -y/max
-    }
-
-    function onResize() {
-      camera.aspect = innerWidth/innerHeight
-      camera.updateProjectionMatrix()
-      renderer.setSize(innerWidth, innerHeight)
-    }
-
-    function shoot() {
-      if (gameOver) return
-      const geo = new THREE.SphereGeometry(bulletRadius, 8, 8)
-      const mat = new THREE.MeshBasicMaterial({color:0xffff00})
-      const b = new THREE.Mesh(geo, mat)
-      b.position.copy(ship.position).add(new THREE.Vector3(0,0,-1))
-      b.userData = { vel: new THREE.Vector3(0,0,-1).multiplyScalar(1) }
-      scene.add(b)
-      bullets.push(b)
-    }
-
-    function spawnEnemy() {
-      const radius = Math.random()*0.6 + 0.3
-      const geo = new THREE.IcosahedronGeometry(radius,1)
-      const mat = new THREE.MeshPhongMaterial({color:0xff5555, flatShading:true})
-      const e = new THREE.Mesh(geo, mat)
-      e.position.set((Math.random()-0.5)*12, (Math.random()-0.5)*8, -80)
-      e.userData = { vel: new THREE.Vector3(0,0,0.1 + Math.random()*0.1), radius }
-      scene.add(e)
-      enemies.push(e)
-    }
-
-    function update() {
-      const now = performance.now()
-      if (now - lastSpawn > 800) {
-        spawnEnemy()
-        lastSpawn = now
+    });
+    base.addEventListener('touchmove', e=>{
+      e.preventDefault();
+      for (let t of e.changedTouches) {
+        if (t.identifier===joystick.id) { updateJoy(t); break; }
       }
-
-      // Move ship
-      ship.position.x = THREE.MathUtils.clamp(ship.position.x + joystick.x*0.3, -8, 8)
-      ship.position.y = THREE.MathUtils.clamp(ship.position.y + joystick.y*0.3, -5, 5)
-
-      // Rotate starfield
-      starField.rotation.y += 0.0004
-      starField.rotation.x += 0.0002
-
-      // Update bullets
-      for (let i = bullets.length - 1; i >= 0; i--) {
-        const b = bullets[i]
-        b.position.add(b.userData.vel)
-        if (b.position.z < -150) {
-          scene.remove(b)
-          bullets.splice(i, 1)
+    });
+    base.addEventListener('touchend', e=>{
+      e.preventDefault();
+      for (let t of e.changedTouches) {
+        if (t.identifier===joystick.id) {
+          joystick.id=null; joystick.x=joystick.y=0;
+          thumb.style.transform='';
         }
       }
+    });
 
-      // Update enemies
-      for (let i = enemies.length - 1; i >= 0; i--) {
-        const e = enemies[i]
-        e.position.add(e.userData.vel)
-        if (e.position.z > 3) {
-          scene.remove(e)
-          enemies.splice(i, 1)
-          hitPlayer()
+    // Fire button touch
+    const fire = document.getElementById('fireBtn');
+    fire.addEventListener('touchstart', e=>{
+      e.preventDefault();
+      const t=e.changedTouches[0];
+      if (shootTouch===null) {
+        shootTouch=t.identifier;
+        shoot(); shootInterval=setInterval(shoot,200);
+      }
+    });
+    fire.addEventListener('touchend', e=>{
+      e.preventDefault();
+      for (let t of e.changedTouches) {
+        if (t.identifier===shootTouch) {
+          clearInterval(shootInterval);
+          shootTouch=null;
         }
       }
+    });
+  }
 
-      // Collisions
-      for (let i = bullets.length - 1; i >= 0; i--) {
-        for (let j = enemies.length - 1; j >= 0; j--) {
-          const b = bullets[i], e = enemies[j]
-          if (b.position.distanceTo(e.position) < bulletRadius + e.userData.radius) {
-            scene.remove(b)
-            scene.remove(e)
-            bullets.splice(i,1)
-            enemies.splice(j,1)
-            score += 20
-            updateHUD()
-            break
-          }
-        }
+  function updateJoy(touch) {
+    const rect = document.getElementById('joyBase').getBoundingClientRect();
+    const dx = touch.clientX - (rect.left + rect.width/2);
+    const dy = touch.clientY - (rect.top  + rect.height/2);
+    const dist = Math.hypot(dx,dy), max=rect.width/2;
+    const clamped = Math.min(dist, max), ang = Math.atan2(dy,dx);
+    const x= Math.cos(ang)*clamped, y= Math.sin(ang)*clamped;
+    document.getElementById('joyThumb')
+      .style.transform = `translate(${x}px,${y}px)`;
+    joystick.x = x/max;
+    joystick.y = -y/max;
+  }
+
+  function startGame() {
+    document.getElementById('startOverlay').style.display='none';
+    lastSpawn = performance.now();
+    animate();
+  }
+
+  // ——————— Game Loop ———————
+  function update(dt) {
+    // Ship movement
+    ship.position.x = THREE.MathUtils.clamp(ship.position.x + joystick.x*dt*0.3, -8, 8);
+    ship.position.y = THREE.MathUtils.clamp(ship.position.y + joystick.y*dt*0.3, -5, 5);
+
+    // Starfield drift
+    starField.rotation.y += dt*0.0004;
+    starField.rotation.x += dt*0.0002;
+
+    // Spawn difficulty scales
+    if (performance.now() - lastSpawn > Math.max(200, 1000 - score*2)) {
+      const e = enemyPool.obtain();
+      e.spawn();
+      enemies.push(e);
+      lastSpawn = performance.now();
+    }
+
+    // Bullets
+    for (let i=bullets.length-1; i>=0; i--) {
+      if (!bullets[i].update(dt)) {
+        bullets[i].destroy();
+        bullets.splice(i,1);
       }
     }
 
-    function hitPlayer() {
-      health -= 20
-      updateHUD()
-      if (health <= 0) endGame()
+    // Enemies
+    for (let i=enemies.length-1; i>=0; i--) {
+      if (!enemies[i].update(dt)) {
+        enemies[i].destroy();
+        enemies.splice(i,1);
+        hitPlayer();
+      }
     }
 
-    function updateHUD() {
-      document.getElementById('score').textContent  = 'Score: '  + score
-      document.getElementById('health').textContent = 'Health: ' + health
-    }
+    // Collisions + Explosions
+    bullets.forEach((b, bi) => {
+      enemies.forEach((e, ei) => {
+        if (b.mesh.position.distanceTo(e.mesh.position) < b.mesh.geometry.parameters.radius + e.radius) {
+          // explosion
+          const ex = explosionPool.obtain();
+          ex.spawn(e.mesh.position);
+          explosions.push(ex);
+          // remove both
+          b.destroy(); bullets.splice(bi,1);
+          e.destroy(); enemies.splice(ei,1);
+          // score
+          score += 20; document.getElementById('score').textContent = 'Score: ' + score;
+        }
+      });
+    });
 
-    function endGame() {
-      gameOver = true
-      document.getElementById('gameover').style.display = 'block'
+    // Explosions
+    for (let i=explosions.length-1; i>=0; i--) {
+      if (!explosions[i].update(dt)) {
+        explosions[i].destroy();
+        explosions.splice(i,1);
+      }
     }
+  }
 
-    function resetGame() {
-      bullets.forEach(b=>scene.remove(b))
-      enemies.forEach(e=>scene.remove(e))
-      bullets = []; enemies = []
-      score = 0; health = 100; gameOver = false
-      ship.position.set(0,0,0)
-      document.getElementById('gameover').style.display = 'none'
-      updateHUD()
-    }
+  function hitPlayer() {
+    health -= 20;
+    document.getElementById('health').textContent = 'Health: ' + health;
+    if (health <= 0) endGame();
+  }
 
-    function animate() {
-      requestAnimationFrame(animate)
-      if (!gameOver) update()
-      renderer.render(scene, camera)
-    }
+  function shoot() {
+    if (gameOver) return;
+    const b = bulletPool.obtain();
+    b.spawn(ship.position.clone().add(new THREE.Vector3(0,0,-1)));
+    bullets.push(b);
+  }
 
-    init()
-    animate()
+  function endGame() {
+    gameOver = true;
+    document.getElementById('gameOverOverlay').style.display='flex';
+  }
+
+  function resetGame() {
+    // wipe everything
+    bullets.forEach(b=>b.destroy()); enemies.forEach(e=>e.destroy());
+    explosions.forEach(ex=>ex.destroy());
+    bullets=[]; enemies=[]; explosions=[];
+    score=0; health=100; gameOver=false;
+    ship.position.set(0,0,0);
+    document.getElementById('score').textContent = 'Score: 0';
+    document.getElementById('health').textContent = 'Health: 100';
+    document.getElementById('gameOverOverlay').style.display='none';
+    lastSpawn = performance.now();
+    animate();
+  }
+
+  let prevTime = null;
+  function animate(ts) {
+    if (gameOver) return;
+    requestAnimationFrame(animate);
+    if (!prevTime) prevTime = ts;
+    const dt = (ts - prevTime) / 16.666; // normalize to ~60fps
+    prevTime = ts;
+    update(dt);
+    renderer.render(scene, camera);
+  }
+
+  // ——————— Kickoff ———————
+  init();
   </script>
 </body>
 </html>
