@@ -10,6 +10,22 @@
     html, body { width:100%; height:100%; overflow:hidden; background:#000; touch-action:none; }
     canvas { display:block; }
 
+    /* Top Banner */
+    #banner {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 0.5rem 0;
+      background: rgba(0,0,0,0.8);
+      color: #0ff;
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      font-size: 1.5rem;
+      z-index: 25;
+      text-shadow: 0 0 6px rgba(0,255,255,0.8);
+    }
+
     /* Start & Game Over Overlays */
     .overlay {
       position:absolute; top:0; left:0; width:100%; height:100%;
@@ -27,7 +43,7 @@
 
     /* HUD */
     #hud {
-      position:absolute; top:1rem; left:1rem;
+      position:absolute; top:3rem; left:1rem;
       font-family:'Orbitron',sans-serif; color:#0f0;
       text-shadow:0 0 4px rgba(0,255,0,0.7);
       z-index:15; font-size:1rem;
@@ -66,6 +82,9 @@
   </style>
 </head>
 <body>
+  <!-- Top Banner -->
+  <div id="banner">by Eric Van Arsdell</div>
+
   <!-- Overlays -->
   <div id="startOverlay" class="overlay">
     Tap to START
@@ -119,8 +138,7 @@
     }
     update(dt) {
       this.mesh.position.addScaledVector(this.vel, dt * 0.6);
-      if (this.mesh.position.z < -150) return false;
-      return true;
+      return this.mesh.position.z >= -150;
     }
     destroy() {
       scene.remove(this.mesh);
@@ -131,9 +149,9 @@
   // ——————— Enemy Class ———————
   class Enemy {
     constructor() {
-      const baseGeo = new THREE.IcosahedronGeometry(1,1);
-      const baseMat = new THREE.MeshPhongMaterial({ color:0xff5555, flatShading:true });
-      this.mesh = new THREE.Mesh(baseGeo, baseMat);
+      const geo = new THREE.IcosahedronGeometry(1,1);
+      const mat = new THREE.MeshPhongMaterial({ color:0xff5555, flatShading:true });
+      this.mesh = new THREE.Mesh(geo, mat);
       this.vel = new THREE.Vector3(0,0,1);
       this.radius = 1;
     }
@@ -141,13 +159,12 @@
       const r = Math.random()*0.7 + 0.3;
       this.mesh.scale.set(r,r,r);
       this.radius = r;
-      this.mesh.position.set((Math.random()-0.5)*12,(Math.random()-0.5)*8,-80);
+      this.mesh.position.set((Math.random()-0.5)*12, (Math.random()-0.5)*8, -80);
       scene.add(this.mesh);
     }
     update(dt) {
       this.mesh.position.addScaledVector(this.vel, dt * (0.08 + Math.random()*0.07));
-      if (this.mesh.position.z > 3) return false;
-      return true;
+      return this.mesh.position.z <= 3;
     }
     destroy() {
       scene.remove(this.mesh);
@@ -172,10 +189,9 @@
     update(dt) {
       this.age += dt;
       const t = this.age / this.lifetime;
-      this.mesh.scale.setScalar(0.2 + t*2);
+      this.mesh.scale.setScalar(0.2 + t * 2);
       this.mesh.material.opacity = 0.8 * (1 - t);
-      if (t >= 1) return false;
-      return true;
+      return t < 1;
     }
     destroy() {
       scene.remove(this.mesh);
@@ -195,35 +211,38 @@
   let joystick = { x:0, y:0, id:null },
       shootTouch = null, shootInterval = null;
 
-  // ——————— Initialization ———————
   function init() {
-    // Scene + Camera
+    // Scene & Camera
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,500);
+    camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 500);
     camera.position.set(0,3,12);
     camera.lookAt(0,0,0);
+
     // Renderer
-    renderer = new THREE.WebGLRenderer({antialias:true});
+    renderer = new THREE.WebGLRenderer({ antialias:true });
     renderer.setSize(innerWidth, innerHeight);
     document.body.appendChild(renderer.domElement);
+
     // Lights
-    const dl = new THREE.DirectionalLight(0xffffff,1);
+    const dl = new THREE.DirectionalLight(0xffffff, 1);
     dl.position.set(5,10,7);
     scene.add(dl, new THREE.AmbientLight(0x202020));
+
     // Starfield
     const g = new THREE.BufferGeometry();
-    const pts = new Float32Array(800*3);
-    for (let i=0; i<800; i++) {
-      pts[i*3]   = (Math.random()*2-1)*100;
-      pts[i*3+1] = (Math.random()*2-1)*100;
-      pts[i*3+2] = (Math.random()*2-1)*-300;
+    const pts = new Float32Array(800 * 3);
+    for (let i = 0; i < 800; i++) {
+      pts[i*3]   = (Math.random()*2 - 1) * 100;
+      pts[i*3+1] = (Math.random()*2 - 1) * 100;
+      pts[i*3+2] = (Math.random()*2 - 1) * -300;
     }
-    g.setAttribute('position', new THREE.BufferAttribute(pts,3));
-    starField = new THREE.Points(g, new THREE.PointsMaterial({color:0xffffff, size:0.7}));
+    g.setAttribute('position', new THREE.BufferAttribute(pts, 3));
+    starField = new THREE.Points(g, new THREE.PointsMaterial({ color:0xffffff, size:0.7 }));
     scene.add(starField);
+
     // Ship
     const sGeo = new THREE.ConeGeometry(0.5,1.5,12);
-    const sMat = new THREE.MeshPhongMaterial({color:0x00ffff});
+    const sMat = new THREE.MeshPhongMaterial({ color:0x00ffff });
     ship = new THREE.Mesh(sGeo, sMat);
     ship.rotation.x = Math.PI/2;
     scene.add(ship);
@@ -234,133 +253,108 @@
     document.getElementById('restartBtn').addEventListener('click', resetGame);
   }
 
-  // ——————— Controls Setup ———————
   function setupControls() {
-    const base = document.getElementById('joyBase');
-    const thumb= document.getElementById('joyThumb');
-    // Joystick touch
+    const base  = document.getElementById('joyBase');
+    const thumb = document.getElementById('joyThumb');
+    // Joystick
     base.addEventListener('touchstart', e=>{
       e.preventDefault();
-      if (joystick.id===null) {
-        const t=e.changedTouches[0];
-        joystick.id=t.identifier;
+      if (joystick.id === null) {
+        const t = e.changedTouches[0];
+        joystick.id = t.identifier;
         updateJoy(t);
       }
     });
     base.addEventListener('touchmove', e=>{
       e.preventDefault();
       for (let t of e.changedTouches) {
-        if (t.identifier===joystick.id) { updateJoy(t); break; }
+        if (t.identifier === joystick.id) { updateJoy(t); break; }
       }
     });
     base.addEventListener('touchend', e=>{
       e.preventDefault();
       for (let t of e.changedTouches) {
-        if (t.identifier===joystick.id) {
-          joystick.id=null; joystick.x=joystick.y=0;
-          thumb.style.transform='';
+        if (t.identifier === joystick.id) {
+          joystick.id = null; joystick.x = joystick.y = 0;
+          thumb.style.transform = '';
         }
       }
     });
 
-    // Fire button touch
+    // Fire button
     const fire = document.getElementById('fireBtn');
     fire.addEventListener('touchstart', e=>{
       e.preventDefault();
-      const t=e.changedTouches[0];
-      if (shootTouch===null) {
-        shootTouch=t.identifier;
-        shoot(); shootInterval=setInterval(shoot,200);
+      const t = e.changedTouches[0];
+      if (shootTouch === null) {
+        shootTouch = t.identifier;
+        shoot(); shootInterval = setInterval(shoot, 200);
       }
     });
     fire.addEventListener('touchend', e=>{
       e.preventDefault();
       for (let t of e.changedTouches) {
-        if (t.identifier===shootTouch) {
+        if (t.identifier === shootTouch) {
           clearInterval(shootInterval);
-          shootTouch=null;
+          shootTouch = null;
         }
       }
     });
   }
 
-  function updateJoy(touch) {
+  function updateJoy(t) {
     const rect = document.getElementById('joyBase').getBoundingClientRect();
-    const dx = touch.clientX - (rect.left + rect.width/2);
-    const dy = touch.clientY - (rect.top  + rect.height/2);
-    const dist = Math.hypot(dx,dy), max=rect.width/2;
+    const dx = t.clientX - (rect.left + rect.width/2);
+    const dy = t.clientY - (rect.top  + rect.height/2);
+    const dist = Math.hypot(dx,dy), max = rect.width/2;
     const clamped = Math.min(dist, max), ang = Math.atan2(dy,dx);
-    const x= Math.cos(ang)*clamped, y= Math.sin(ang)*clamped;
-    document.getElementById('joyThumb')
-      .style.transform = `translate(${x}px,${y}px)`;
-    joystick.x = x/max;
-    joystick.y = -y/max;
+    const x = Math.cos(ang)*clamped, y = Math.sin(ang)*clamped;
+    document.getElementById('joyThumb').style.transform = `translate(${x}px,${y}px)`;
+    joystick.x = x / max;
+    joystick.y = -y / max;
   }
 
   function startGame() {
-    document.getElementById('startOverlay').style.display='none';
+    document.getElementById('startOverlay').style.display = 'none';
     lastSpawn = performance.now();
     animate();
   }
 
-  // ——————— Game Loop ———————
   function update(dt) {
-    // Ship movement
+    // Ship
     ship.position.x = THREE.MathUtils.clamp(ship.position.x + joystick.x*dt*0.3, -8, 8);
     ship.position.y = THREE.MathUtils.clamp(ship.position.y + joystick.y*dt*0.3, -5, 5);
-
-    // Starfield drift
+    // Starfield
     starField.rotation.y += dt*0.0004;
     starField.rotation.x += dt*0.0002;
-
-    // Spawn difficulty scales
+    // Spawn
     if (performance.now() - lastSpawn > Math.max(200, 1000 - score*2)) {
-      const e = enemyPool.obtain();
-      e.spawn();
-      enemies.push(e);
+      const e = enemyPool.obtain(); e.spawn(); enemies.push(e);
       lastSpawn = performance.now();
     }
-
     // Bullets
-    for (let i=bullets.length-1; i>=0; i--) {
-      if (!bullets[i].update(dt)) {
-        bullets[i].destroy();
-        bullets.splice(i,1);
-      }
+    for (let i = bullets.length-1; i >= 0; i--) {
+      if (!bullets[i].update(dt)) { bullets[i].destroy(); bullets.splice(i,1); }
     }
-
     // Enemies
-    for (let i=enemies.length-1; i>=0; i--) {
-      if (!enemies[i].update(dt)) {
-        enemies[i].destroy();
-        enemies.splice(i,1);
-        hitPlayer();
-      }
+    for (let i = enemies.length-1; i >= 0; i--) {
+      if (!enemies[i].update(dt)) { enemies[i].destroy(); enemies.splice(i,1); hitPlayer(); }
     }
-
-    // Collisions + Explosions
-    bullets.forEach((b, bi) => {
-      enemies.forEach((e, ei) => {
+    // Collisions
+    bullets.forEach((b,bi) => {
+      enemies.forEach((e,ei) => {
         if (b.mesh.position.distanceTo(e.mesh.position) < b.mesh.geometry.parameters.radius + e.radius) {
-          // explosion
-          const ex = explosionPool.obtain();
-          ex.spawn(e.mesh.position);
-          explosions.push(ex);
-          // remove both
+          const ex = explosionPool.obtain(); ex.spawn(e.mesh.position); explosions.push(ex);
           b.destroy(); bullets.splice(bi,1);
           e.destroy(); enemies.splice(ei,1);
-          // score
-          score += 20; document.getElementById('score').textContent = 'Score: ' + score;
+          score += 20;
+          document.getElementById('score').textContent = 'Score: ' + score;
         }
       });
     });
-
     // Explosions
-    for (let i=explosions.length-1; i>=0; i--) {
-      if (!explosions[i].update(dt)) {
-        explosions[i].destroy();
-        explosions.splice(i,1);
-      }
+    for (let i = explosions.length-1; i >= 0; i--) {
+      if (!explosions[i].update(dt)) { explosions[i].destroy(); explosions.splice(i,1); }
     }
   }
 
@@ -374,40 +368,44 @@
     if (gameOver) return;
     const b = bulletPool.obtain();
     b.spawn(ship.position.clone().add(new THREE.Vector3(0,0,-1)));
-    bullets.push(b);
+    bullets.push(b);  
   }
 
   function endGame() {
     gameOver = true;
-    document.getElementById('gameOverOverlay').style.display='flex';
+    document.getElementById('gameOverOverlay').style.display = 'flex';
   }
 
   function resetGame() {
-    // wipe everything
-    bullets.forEach(b=>b.destroy()); enemies.forEach(e=>e.destroy());
-    explosions.forEach(ex=>ex.destroy());
+    bullets.forEach(b=>b.destroy()); enemies.forEach(e=>e.destroy()); explosions.forEach(ex=>ex.destroy());
     bullets=[]; enemies=[]; explosions=[];
     score=0; health=100; gameOver=false;
     ship.position.set(0,0,0);
     document.getElementById('score').textContent = 'Score: 0';
     document.getElementById('health').textContent = 'Health: 100';
-    document.getElementById('gameOverOverlay').style.display='none';
+    document.getElementById('gameOverOverlay').style.display = 'none';
     lastSpawn = performance.now();
     animate();
   }
 
-  let prevTime = null;
+  let prev= null;
   function animate(ts) {
     if (gameOver) return;
     requestAnimationFrame(animate);
-    if (!prevTime) prevTime = ts;
-    const dt = (ts - prevTime) / 16.666; // normalize to ~60fps
-    prevTime = ts;
+    if (!prev) prev = ts;
+    const dt = (ts - prev) / 16.666;
+    prev = ts;
     update(dt);
     renderer.render(scene, camera);
   }
 
-  // ——————— Kickoff ———————
+  function onResize() {
+    camera.aspect = innerWidth/innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+  }
+
+  // Kickoff
   init();
   </script>
 </body>
