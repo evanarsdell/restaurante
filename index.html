@@ -15,68 +15,70 @@
       width:100%;height:100%;
       background:#0d0d0d;
       font-family:'Poppins',sans-serif;
-      overflow:hidden;
-      touch-action:none;
-      user-select:none;
+      overflow:hidden;touch-action:none;user-select:none;
     }
-    canvas {
-      display:block;width:100%;height:100%;
-      touch-action:none;
-    }
+    canvas { display:block;width:100%;height:100%;touch-action:none }
     :root {
-      --fg:#f1faee;
-      --accent:#e63946;
-      --glass:rgba(255,255,255,0.12);
+      --fg:#f1faee;--accent:#e63946;--glass:rgba(255,255,255,0.12);
     }
     /* OVERLAYS */
-    .overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;
-      background:rgba(13,13,13,0.85);backdrop-filter:blur(10px);color:var(--fg);z-index:20;animation:fadeIn .6s forwards}
+    .overlay{position:absolute;inset:0;display:flex;flex-direction:column;
+      justify-content:center;align-items:center;background:rgba(13,13,13,0.85);
+      backdrop-filter:blur(10px);color:var(--fg);z-index:20;animation:fadeIn .6s forwards}
     .overlay.fade{animation:fadeOut .6s forwards}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    @keyframes fadeOut{to{opacity:0;transform:scale(.9)}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeOut{to{opacity:0;transform:scale(.9)}}
     .overlay h1{font-size:3rem;margin-bottom:.5rem}
     .overlay p{font-size:1.2rem;animation:blink 1.5s infinite}
     @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.4}}
     .overlay small{opacity:.7;margin-top:1rem;font-size:.8rem}
+
     /* HUD */
-    #hud{position:absolute;top:1rem;left:1rem;right:1rem;display:flex;justify-content:space-between;z-index:10;pointer-events:none}
-    .hud-box{display:flex;align-items:center;background:var(--glass);backdrop-filter:blur(6px);
-      padding:.6rem 1.2rem;border-radius:1rem;color:var(--fg);box-shadow:0 8px 24px rgba(0,0,0,0.6);pointer-events:auto}
-    #hp-bar-container{width:140px;height:18px;background:rgba(255,255,255,0.25);border-radius:9px;overflow:hidden;margin-right:.6rem}
-    #hp-bar{height:100%;width:100%;background:linear-gradient(90deg,#e63946,#d62828);transition:width .3s ease}
+    #hud{position:absolute;top:1rem;left:1rem;right:1rem;
+      display:flex;justify-content:space-between;z-index:10;pointer-events:none}
+    .hud-box{display:flex;align-items:center;background:var(--glass);
+      backdrop-filter:blur(6px);padding:.6rem 1.2rem;border-radius:1rem;
+      color:var(--fg);box-shadow:0 8px 24px rgba(0,0,0,0.6);pointer-events:auto}
+    #hp-bar-container{width:140px;height:18px;
+      background:rgba(255,255,255,0.25);border-radius:9px;overflow:hidden;margin-right:.6rem}
+    #hp-bar{height:100%;width:100%;background:linear-gradient(90deg,#e63946,#d62828);
+      transition:width .3s ease}
     .hud-box span{font-weight:600}
+
     /* CONTROLS */
-    #controls{position:absolute;bottom:1rem;left:1rem;right:1rem;display:flex;justify-content:space-between;z-index:15;pointer-events:none}
-    #dpad{display:grid;grid-template-areas:". up ." "left down right";gap:.6rem;pointer-events:auto}
-    #dpad button,#shoot{width:64px;height:64px;border:none;border-radius:1rem;font-size:1.6rem;
-      background:var(--glass);color:var(--fg);box-shadow:0 6px 16px rgba(0,0,0,0.5);
-      transition:transform .1s,background .3s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;pointer-events:auto}
+    #controls{position:absolute;bottom:1rem;left:1rem;right:1rem;
+      display:flex;justify-content:space-between;z-index:15;pointer-events:none}
+    #dpad{display:grid;grid-template-areas:". up ." "left down right";
+      gap:.6rem;pointer-events:auto}
+    #dpad button,#shoot{width:64px;height:64px;border:none;border-radius:1rem;
+      font-size:1.6rem;background:var(--glass);color:var(--fg);
+      box-shadow:0 6px 16px rgba(0,0,0,0.5);transition:transform .1s,background .3s;
+      -webkit-tap-highlight-color:transparent;touch-action:manipulation;pointer-events:auto}
     #dpad button:hover,#shoot:hover{background:rgba(230,57,70,.8)}
     #dpad button:active,#shoot:active{transform:scale(.9)}
     #up{grid-area:up}#down{grid-area:down}#left{grid-area:left}#right{grid-area:right}
     #shoot{background:radial-gradient(circle at 30% 30%,#e63946,#a32232);border-radius:50%}
+
     /* GAME OVER */
     #gameOver{display:none}
     #gameOver h2{font-size:2.4rem;margin-bottom:.5rem}
     #gameOver p{font-size:1.2rem;margin-bottom:1rem}
-    #gameOver button{background:var(--accent);color:var(--fg);padding:.8rem 1.2rem;border:none;border-radius:.8rem;
-      font-size:1.1rem;cursor:pointer;transition:transform .1s,background .3s}
-    #gameOver button:hover{background:#d62828}#gameOver button:active{transform:scale(.95)}
+    #gameOver button{background:var(--accent);color:var(--fg);padding:.8rem 1.2rem;
+      border:none;border-radius:.8rem;font-size:1.1rem;cursor:pointer;
+      transition:transform .1s,background .3s}
+    #gameOver button:hover{background:#d62828}
+    #gameOver button:active{transform:scale(.95)}
   </style>
 </head>
 <body>
 
-  <!-- START -->
   <div id="startOverlay" class="overlay">
-    <h1>StickShot Redux</h1>
-    <p>Tap to Start</p>
-    <small>Allow motion & orientation</small>
+    <h1>StickShot Redux</h1>
+    <p>Tap to Start</p>
+    <small>Allow motion & orientation</small>
   </div>
 
-  <!-- CANVAS -->
   <canvas id="gameCanvas"></canvas>
 
-  <!-- HUD -->
   <div id="hud">
     <div class="hud-box">
       <div id="hp-bar-container"><div id="hp-bar"></div></div>
@@ -85,7 +87,6 @@
     <div class="hud-box">Score <span id="score">0</span></div>
   </div>
 
-  <!-- CONTROLS -->
   <div id="controls">
     <div id="dpad">
       <button id="up">▲</button>
@@ -96,94 +97,79 @@
     <button id="shoot">Shoot</button>
   </div>
 
-  <!-- GAME OVER -->
   <div id="gameOver" class="overlay">
     <h2>Game Over</h2>
     <p>Your Score: <span id="finalScore">0</span></p>
     <button id="restartGame">Restart</button>
   </div>
 
-  <!-- THREE.JS -->
   <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
   <script>
-    let scene, camera, renderer, clock, spawnInterval;
+    let scene,camera,renderer,clock,spawnInterval;
     let playerGroup, bullets = [], enemies = [];
-    let move = { forward:false, back:false, left:false, right:false };
-    let yaw = 0, hp = 100, score = 0, gameRunning = false;
+    let move = {forward:false, back:false, left:false, right:false};
+    let yaw=0, hp=100, score=0, gameRunning=false;
 
-    // Reusable geometry/materials
-    const bulletGeo = new THREE.SphereGeometry(0.1, 8, 8);
-    const bulletMat = new THREE.MeshBasicMaterial({ color:0xffff00 });
+    const bulletGeo = new THREE.SphereGeometry(0.1,8,8);
+    const bulletMat = new THREE.MeshBasicMaterial({color:0xffff00});
 
-    // Make one stick‑figure template
     function makeStickEnemy(){
       const g = new THREE.Group();
-      const mat = new THREE.MeshStandardMaterial({ color:0xffffff });
+      const mat = new THREE.MeshStandardMaterial({color:0xffffff});
       const body = new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,1.2,6), mat);
-      body.position.y = 0.6;
-      g.add(body);
+      body.position.y = 0.6; g.add(body);
       const head = new THREE.Mesh(new THREE.SphereGeometry(0.25,16,16), mat);
-      head.position.y = 1.3;
-      g.add(head);
-      const eyeMat = new THREE.MeshBasicMaterial({ color:0x000000 });
+      head.position.y = 1.3; g.add(head);
+      const eyeMat = new THREE.MeshBasicMaterial({color:0x000000});
       const eyeGeo = new THREE.SphereGeometry(0.04,8,8);
-      ['left','right'].forEach((pos,i)=>{
-        const eye = new THREE.Mesh(eyeGeo, eyeMat);
-        eye.position.set((i?0.1:-0.1),1.4,0.23);
-        g.add(eye);
+      [['left',-0.1],['right',0.1]].forEach(([_,x])=>{
+        const e = new THREE.Mesh(eyeGeo,eyeMat);
+        e.position.set(x,1.4,0.23);
+        g.add(e);
       });
       const smile = new THREE.Mesh(
         new THREE.TorusGeometry(0.12,0.02,8,16,Math.PI),
         eyeMat
       );
-      smile.rotation.x = Math.PI;
-      smile.position.set(0,1.25,0.22);
+      smile.rotation.x = Math.PI; smile.position.set(0,1.25,0.22);
       g.add(smile);
       return g;
     }
     const enemyTemplate = makeStickEnemy();
 
     function init(){
-      // SCENE & CAMERA
       scene = new THREE.Scene(); scene.background = new THREE.Color(0x87ceeb);
-      camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 1000);
-
-      // LIGHT
+      camera = new THREE.PerspectiveCamera(70,innerWidth/innerHeight,0.1,1000);
       scene.add(new THREE.HemisphereLight(0xffffff,0x444444,1.2));
 
-      // PLAYER
+      // player
       playerGroup = new THREE.Group();
-      const pMat = new THREE.MeshStandardMaterial({ color:0xffffff });
-      const pBody = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,1.5,6), pMat);
-      pBody.position.y = 0.75;
-      const pHead = new THREE.Mesh(new THREE.SphereGeometry(0.25,16,16), pMat);
-      pHead.position.y = 1.6;
-      playerGroup.add(pBody, pHead);
-      // ** scale down the player so bullets are visible **
+      const pMat = new THREE.MeshStandardMaterial({color:0xffffff});
+      const pBody = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,1.5,6),pMat);
+      pBody.position.y=0.75;
+      const pHead = new THREE.Mesh(new THREE.SphereGeometry(0.25,16,16),pMat);
+      pHead.position.y=1.6;
+      playerGroup.add(pBody,pHead);
+      // scale down so bullets are visible
       playerGroup.scale.set(0.4,0.4,0.4);
       scene.add(playerGroup);
 
-      // FLOOR
+      // floor
       const floor = new THREE.Mesh(
         new THREE.PlaneGeometry(200,200),
-        new THREE.MeshStandardMaterial({ color:0x3c9c2e, roughness:1 })
+        new THREE.MeshStandardMaterial({color:0x3c9c2e,roughness:1})
       );
       floor.rotation.x = -Math.PI/2;
       scene.add(floor);
 
-      // RENDERER & CLOCK
-      renderer = new THREE.WebGLRenderer({ canvas:document.getElementById('gameCanvas'), antialias:true });
-      renderer.setSize(innerWidth, innerHeight);
+      renderer = new THREE.WebGLRenderer({canvas:document.getElementById('gameCanvas'),antialias:true});
+      renderer.setSize(innerWidth,innerHeight);
       renderer.setPixelRatio(devicePixelRatio);
+
       clock = new THREE.Clock();
-
-      // CONTROLS & RESIZE
       addControlEvents();
-      window.addEventListener('resize', onResize);
-
-      // SPAWN
-      spawnInterval = setInterval(spawnEnemy, 2000);
-
+      window.addEventListener('resize',onResize);
+      spawnInterval = setInterval(spawnEnemy,2000);
       gameRunning = true;
       animate();
     }
@@ -191,89 +177,90 @@
     function onResize(){
       camera.aspect = innerWidth/innerHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(innerWidth, innerHeight);
+      renderer.setSize(innerWidth,innerHeight);
     }
 
     function addControlEvents(){
       ['up','down','left','right'].forEach(key=>{
-        const dirMap = { up:'forward', down:'back', left:'left', right:'right' };
-        const btn = document.getElementById(key);
-        ['pointerdown','touchstart'].forEach(e=>btn.addEventListener(e,ev=>{ ev.preventDefault(); move[dirMap[key]] = true }));
-        ['pointerup','pointerleave','touchend','touchcancel'].forEach(e=>btn.addEventListener(e,()=>move[dirMap[key]] = false));
+        const map={up:'forward',down:'back',left:'left',right:'right'};
+        const btn=document.getElementById(key);
+        ['pointerdown','touchstart'].forEach(e=>
+          btn.addEventListener(e,ev=>{ev.preventDefault();move[map[key]]=true})
+        );
+        ['pointerup','pointerleave','touchend','touchcancel'].forEach(e=>
+          btn.addEventListener(e,()=>move[map[key]]=false)
+        );
       });
-
-      // Shoot
-      const shootBtn = document.getElementById('shoot');
-      ['pointerdown','touchstart'].forEach(e=>shootBtn.addEventListener(e,ev=>{
-        ev.preventDefault();
-        if(gameRunning) shoot();
-      }));
-
-      // Swipe rotate
-      let prevX = null;
-      const canvasEl = renderer.domElement;
-      canvasEl.addEventListener('pointerdown', e=>{ prevX = e.clientX });
-      canvasEl.addEventListener('pointermove', e=>{
+      const shootBtn=document.getElementById('shoot');
+      ['pointerdown','touchstart'].forEach(e=>
+        shootBtn.addEventListener(e,ev=>{ev.preventDefault();if(gameRunning)shoot()})
+      );
+      let prevX=null;
+      const c=renderer.domElement;
+      c.addEventListener('pointerdown',e=>prevX=e.clientX);
+      c.addEventListener('pointermove',e=>{
         if(prevX!==null){
-          yaw -= (e.clientX - prevX)*0.0025;
+          yaw -= (e.clientX-prevX)*0.0025;
           yaw = (yaw%(2*Math.PI)+(2*Math.PI))%(2*Math.PI);
-          prevX = e.clientX;
+          prevX=e.clientX;
         }
       });
-      ['pointerup','touchcancel','pointerleave'].forEach(ev=>canvasEl.addEventListener(ev,()=>prevX=null));
+      ['pointerup','touchcancel','pointerleave'].forEach(evt=>c.addEventListener(evt,()=>prevX=null));
     }
 
     function updatePlayer(dt){
-      const fwd = new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
-      const strafe = new THREE.Vector3(-1,0,0).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
-      const speed = 5*dt;
-      if(move.forward) playerGroup.position.addScaledVector(fwd, speed);
-      if(move.back)    playerGroup.position.addScaledVector(fwd, -speed);
-      if(move.left)    playerGroup.position.addScaledVector(strafe, speed);
-      if(move.right)   playerGroup.position.addScaledVector(strafe, -speed);
-      playerGroup.rotation.y = yaw;
-
-      // camera follow
-      const camOff = new THREE.Vector3(0,2,6).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
+      const forward=new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
+      const side=new THREE.Vector3(-1,0,0).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
+      const speed=5*dt;
+      if(move.forward)playerGroup.position.addScaledVector(forward,speed);
+      if(move.back)   playerGroup.position.addScaledVector(forward,-speed);
+      if(move.left)   playerGroup.position.addScaledVector(side,speed);
+      if(move.right)  playerGroup.position.addScaledVector(side,-speed);
+      playerGroup.rotation.y=yaw;
+      const camOff=new THREE.Vector3(0,2,6).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
       camera.position.copy(playerGroup.position).add(camOff);
       camera.lookAt(playerGroup.position);
     }
 
     function shoot(){
-      const b = new THREE.Mesh(bulletGeo, bulletMat);
-      const dir = new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),yaw).normalize();
-      b.position.copy(playerGroup.position).add(dir.clone().multiplyScalar(0.8)).setY(playerGroup.position.y+1);
-      b.userData.velocity = dir.multiplyScalar(20);
+      const b=new THREE.Mesh(bulletGeo,bulletMat);
+      const dir=new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),yaw).normalize();
+      b.position.copy(playerGroup.position).add(dir.clone().multiplyScalar(0.8))
+        .setY(playerGroup.position.y+1);
+      b.userData.velocity=dir.multiplyScalar(20);
       scene.add(b);
       bullets.push(b);
     }
 
     function spawnEnemy(){
       if(!gameRunning) return;
-      const e = enemyTemplate.clone();
-      const r = 20, a = Math.random()*Math.PI*2;
-      e.position.set(playerGroup.position.x + r*Math.cos(a), 0, playerGroup.position.z + r*Math.sin(a));
+      const e=enemyTemplate.clone();
+      const r=20,a=Math.random()*Math.PI*2;
+      e.position.set(playerGroup.position.x+r*Math.cos(a),0,playerGroup.position.z+r*Math.sin(a));
       scene.add(e);
       enemies.push(e);
     }
 
     function checkCollisions(){
-      // bullets → enemies
-      for(let i=bullets.length-1; i>=0; i--){
-        for(let j=enemies.length-1; j>=0; j--){
-          if(bullets[i].position.distanceTo(enemies[j].position) < 1.0){
+      // bullets → enemies (XZ‑only)
+      for(let i=bullets.length-1;i>=0;i--){
+        const bp=bullets[i].position;
+        for(let j=enemies.length-1;j>=0;j--){
+          const ep=enemies[j].position;
+          const dx=bp.x-ep.x, dz=bp.z-ep.z;
+          if(Math.hypot(dx,dz) < 0.6){
             scene.remove(bullets[i]);
             scene.remove(enemies[j]);
             bullets.splice(i,1);
             enemies.splice(j,1);
-            score += 1;  // ** 1 point per kill **
+            score += 1;  // 1 point per kill
             document.getElementById('score').textContent = score;
             break;
           }
         }
       }
       // enemies → player
-      for(let i=enemies.length-1; i>=0; i--){
+      for(let i=enemies.length-1;i>=0;i--){
         if(enemies[i].position.distanceTo(playerGroup.position) < 1.2){
           hp -= 10;
           document.getElementById('hp-bar').style.width = hp + '%';
@@ -288,59 +275,56 @@
     function animate(){
       if(!gameRunning) return;
       requestAnimationFrame(animate);
-      const dt = clock.getDelta();
+      const dt=clock.getDelta();
       updatePlayer(dt);
-
       bullets.forEach((b,i)=>{
-        b.position.addScaledVector(b.userData.velocity, dt);
-        if(b.position.distanceTo(playerGroup.position) > 50){
+        b.position.addScaledVector(b.userData.velocity,dt);
+        if(b.position.distanceTo(playerGroup.position)>50){
           scene.remove(b);
           bullets.splice(i,1);
         }
       });
-
       enemies.forEach(en=>{
-        const dir = new THREE.Vector3().subVectors(playerGroup.position,en.position).setY(0).normalize();
-        en.position.addScaledVector(dir, 1.5*dt);
+        const dir=new THREE.Vector3().subVectors(playerGroup.position,en.position)
+                         .setY(0).normalize();
+        en.position.addScaledVector(dir,1.5*dt);
       });
-
       checkCollisions();
       renderer.render(scene,camera);
     }
 
     function startGame(){
-      const so = document.getElementById('startOverlay');
+      const so=document.getElementById('startOverlay');
       so.classList.add('fade');
       setTimeout(()=>so.style.display='none',600);
       init();
     }
     function endGame(){
-      gameRunning = false;
+      gameRunning=false;
       clearInterval(spawnInterval);
       document.getElementById('finalScore').textContent = score;
-      document.getElementById('gameOver').style.display = 'flex';
+      document.getElementById('gameOver').style.display='flex';
     }
     function resetGame(){
       bullets.forEach(b=>scene.remove(b));
       enemies.forEach(e=>scene.remove(e));
-      bullets=[]; enemies=[];
-      hp=100; score=0; yaw=0;
+      bullets=[];enemies=[];
+      hp=100;score=0;yaw=0;
       document.getElementById('hp-bar').style.width='100%';
       document.getElementById('hp-text').textContent='100';
       document.getElementById('score').textContent='0';
       playerGroup.position.set(0,0,0);
       document.getElementById('gameOver').style.display='none';
-      clock = new THREE.Clock();
-      spawnInterval = setInterval(spawnEnemy,2000);
-      gameRunning = true;
+      clock=new THREE.Clock();
+      spawnInterval=setInterval(spawnEnemy,2000);
+      gameRunning=true;
       animate();
     }
 
-    // Bind events
-    document.getElementById('restartGame').addEventListener('click', resetGame);
+    document.getElementById('restartGame').addEventListener('click',resetGame);
     ['pointerdown','touchstart'].forEach(evt=>
       document.getElementById('startOverlay')
-              .addEventListener(evt, startGame, { once:true })
+              .addEventListener(evt,startGame,{once:true})
     );
   </script>
 </body>
