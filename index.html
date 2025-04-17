@@ -77,17 +77,30 @@
       transition: width .3s ease, background .3s ease;
     }
     #hp-text { font-weight: 600; margin-right: 1rem; }
-    #lowHealthWarning {
+    #highScoreBox { font-weight: 600; }
+
+    /* ON-SCREEN LOW-HEALTH WARNING */
+    #healthWarningOverlay {
       display: none;
-      background: rgba(230,57,70,0.9);
+      position: absolute;
+      top: 2rem; left: 50%;
+      transform: translateX(-50%);
+      background: rgba(230,57,70,0.7);
       color: #fff;
-      padding: .4rem .8rem;
+      padding: .6rem 1.2rem;
       border-radius: .8rem;
       font-weight: 600;
-      font-size: .9rem;
-      margin-right: 1rem;
+      font-size: 1rem;
+      backdrop-filter: blur(6px);
+      z-index: 15;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .5s ease;
     }
-    #highScoreBox { font-weight: 600; }
+    #healthWarningOverlay.show {
+      display: block;
+      opacity: 1;
+    }
 
     /* CONTROLS */
     #controls {
@@ -164,11 +177,13 @@
         <div id="hp-bar"></div>
       </div>
       <span id="hp-text">100</span>
-      <div id="lowHealthWarning">⚠ Low Health!</div>
       <div id="highScoreBox">High <span id="highScore">0</span></div>
     </div>
     <div class="hud-box">Score <span id="score">0</span></div>
   </div>
+
+  <!-- ON-SCREEN LOW-HEALTH WARNING -->
+  <div id="healthWarningOverlay">⚠ Low Health!</div>
 
   <!-- CONTROLS -->
   <div id="controls">
@@ -195,12 +210,23 @@
     let playerGroup, bullets = [], enemies = [];
     let move = { forward:false, back:false, left:false, right:false };
     let yaw = 0, hp = 100, score = 0, highScore = 0, gameRunning = false;
+    let warningTimeout;
+
+    function showHealthWarning() {
+      const hw = document.getElementById('healthWarningOverlay');
+      if (hw.classList.contains('show')) return;
+      hw.classList.add('show');
+      clearTimeout(warningTimeout);
+      warningTimeout = setTimeout(() => {
+        hw.classList.remove('show');
+      }, 3000);
+    }
 
     // Bullet geometry/material
     const bulletGeo = new THREE.SphereGeometry(0.1,8,8);
     const bulletMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
 
-    // Checkerboard grass texture
+    // Checkerboard ground texture
     function makeGroundTex(){
       const size = 512, step = 32;
       const c = document.createElement('canvas');
@@ -208,8 +234,9 @@
       const ctx = c.getContext('2d');
       ctx.fillStyle = '#4caf50'; ctx.fillRect(0,0,size,size);
       ctx.fillStyle = '#388e3c';
-      for(let x=0;x<size;x+=step) for(let y=0;y<size;y+=step)
-        if(((x+y)/step)%2<1) ctx.fillRect(x,y,step,step);
+      for(let x=0;x<size;x+=step)
+        for(let y=0;y<size;y+=step)
+          if(((x+y)/step)%2<1) ctx.fillRect(x,y,step,step);
       const t = new THREE.CanvasTexture(c);
       t.wrapS = t.wrapT = THREE.RepeatWrapping;
       t.repeat.set(20,20);
@@ -230,7 +257,7 @@
         cone.rotation.z = ang;
         g.add(cone);
       }
-      // eyes
+      // eyes & mouth same as original
       const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
       const eyeGeo = new THREE.SphereGeometry(0.08,8,8);
       const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
@@ -238,7 +265,6 @@
       const rightEye = leftEye.clone();
       rightEye.position.x = 0.2;
       g.add(leftEye, rightEye);
-      // angry mouth
       const mouthMat = new THREE.MeshBasicMaterial({ color:0x000000 });
       const mouthGeo = new THREE.TorusGeometry(0.25,0.04,8,16,Math.PI);
       const mouth = new THREE.Mesh(mouthGeo, mouthMat);
@@ -249,25 +275,32 @@
     }
     const monsterTemplate = makeMonster();
 
-    // Detailed player model
+    // Detailed player model with hair, front-facing eyes, realistic gun
     function makePlayer(){
       const g = new THREE.Group();
-      // materials
       const skinMat  = new THREE.MeshStandardMaterial({ color:0xf5c9a5 });
       const shirtMat = new THREE.MeshStandardMaterial({ color:0x1565c0 });
       const pantsMat = new THREE.MeshStandardMaterial({ color:0x37474f });
       const shoeMat  = new THREE.MeshStandardMaterial({ color:0x212121 });
       const gunMat   = new THREE.MeshStandardMaterial({ color:0x333333, metalness:0.4, roughness:0.3 });
-      // head + eyes
+
+      // head
       const head = new THREE.Mesh(new THREE.SphereGeometry(0.25,16,16), skinMat);
       head.position.y = 1.6; g.add(head);
+      // hair
+      const hairMat = new THREE.MeshStandardMaterial({ color:0x000000 });
+      const hair = new THREE.Mesh(new THREE.SphereGeometry(0.28,16,16), hairMat);
+      hair.position.set(0,1.75,0);
+      g.add(hair);
+      // eyes (front of head, z negative)
       const eyeGeo = new THREE.SphereGeometry(0.04,8,8);
       const eyeMat = new THREE.MeshBasicMaterial({ color:0x000000 });
       const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
       const rightEye = leftEye.clone();
-      leftEye.position.set(-0.08,1.68,0.22);
-      rightEye.position.set( 0.08,1.68,0.22);
+      leftEye.position.set(-0.08,1.68,-0.22);
+      rightEye.position.set( 0.08,1.68,-0.22);
       g.add(leftEye, rightEye);
+
       // torso
       const torso = new THREE.Mesh(new THREE.BoxGeometry(0.45,0.65,0.25), shirtMat);
       torso.position.y = 1.05; g.add(torso);
@@ -292,16 +325,18 @@
       leftShoe.position.set(-0.13,-0.02,0.03);
       rightShoe.position.set( 0.13,-0.02,0.03);
       g.add(leftShoe, rightShoe);
-      // rifle
-      const stock = new THREE.Mesh(new THREE.BoxGeometry(0.25,0.1,0.12), gunMat);
+
+      // realistic rifle: stock + cylindrical barrel
+      const stock = new THREE.Mesh(new THREE.BoxGeometry(0.3,0.1,0.12), gunMat);
       stock.position.set(0.28,1.25,-0.05);
-      const barrel = new THREE.Mesh(new THREE.BoxGeometry(0.06,0.06,0.85), gunMat);
-      barrel.position.set(0.35,1.25,-0.48);
+      const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.03,0.03,0.9,16), gunMat);
+      barrel.rotation.z = Math.PI/2;
+      barrel.position.set(0.35,1.25,-0.5);
       g.add(stock, barrel);
+
       return g;
     }
 
-    // Load high score
     function loadHighScore(){
       const hs = parseInt(localStorage.getItem('stickshot_highscore'))||0;
       highScore = hs;
@@ -406,8 +441,15 @@
 
     function spawnEnemy(){
       if(!gameRunning) return;
+      const isBig = Math.random() < 0.2;
       const m = monsterTemplate.clone();
-      m.scale.set(1,2,1); // taller
+      if(isBig){
+        m.scale.set(2,4,2);
+        m.userData = { health: 3, points: 3 };
+      } else {
+        m.scale.set(1,2,1);
+        m.userData = { health: 1, points: 1 };
+      }
       const r = 20, a = Math.random()*Math.PI*2;
       m.position.set(
         playerGroup.position.x + r*Math.cos(a),
@@ -423,9 +465,7 @@
       const green = Math.round(255*pct), red = Math.round(255*(1-pct));
       document.getElementById('hp-bar').style.background = `rgb(${red},${green},0)`;
       document.getElementById('hp-text').textContent = hp;
-      const warn = document.getElementById('lowHealthWarning');
-      if(hp<=30) warn.style.display = 'block';
-      else        warn.style.display = 'none';
+      if(hp <= 30) showHealthWarning();
     }
 
     function checkCollisions(){
@@ -437,14 +477,19 @@
           const dx = b.position.x - e.position.x,
                 dz = b.position.z - e.position.z;
           if(Math.hypot(dx,dz) < 0.6){
-            scene.remove(b); scene.remove(e);
-            bullets.splice(i,1); enemies.splice(j,1);
-            score++;
-            document.getElementById('score').textContent = score;
-            if(score > highScore){
-              highScore = score;
-              localStorage.setItem('stickshot_highscore', highScore);
-              document.getElementById('highScore').textContent = highScore;
+            scene.remove(b);
+            bullets.splice(i,1);
+            e.userData.health--;
+            if(e.userData.health <= 0){
+              scene.remove(e);
+              enemies.splice(j,1);
+              score += e.userData.points;
+              document.getElementById('score').textContent = score;
+              if(score > highScore){
+                highScore = score;
+                localStorage.setItem('stickshot_highscore', highScore);
+                document.getElementById('highScore').textContent = highScore;
+              }
             }
             break;
           }
@@ -461,7 +506,6 @@
           if(hp <= 0){ endGame(); return; }
         }
       }
-      // bullets fly forever
     }
 
     function animate(){
@@ -471,6 +515,9 @@
       updatePlayer(dt);
       bullets.forEach(b => b.position.addScaledVector(b.userData.velocity, dt));
       enemies.forEach(e=>{
+        // spin to face player
+        e.lookAt(playerGroup.position.x, e.position.y, playerGroup.position.z);
+        // move in
         const dir = new THREE.Vector3().subVectors(playerGroup.position, e.position)
                       .setY(0).normalize();
         e.position.addScaledVector(dir, 1.5 * dt);
