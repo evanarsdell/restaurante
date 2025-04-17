@@ -1,328 +1,467 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>StickShot Redux Revamped</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-<style>
-/* — RESET / BASE — */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;background:#0d0d0d;font-family:'Poppins',sans-serif;overflow:hidden;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>StickShot Redux Revamped</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+        rel="stylesheet">
+  <style>
+    /* RESET / BASE */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%; height: 100%;
+      background: #0d0d0d;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: none; /* disable double-tap zoom / gestures */
+    }
+    canvas {
+      display: block;
+      width: 100%; height: 100%;
+      touch-action: none;
+    }
 
-/* — CANVAS — */
-canvas{display:block;width:100%;height:100%}
+    :root {
+      --fg: #f1faee;
+      --accent: #e63946;
+      --glass: rgba(255,255,255,0.12);
+    }
 
-/* — COLORS — */
-:root{
-  --fg:#f1faee;
-  --accent:#e63946;
-  --glass:rgba(255,255,255,.12);
-}
+    /* OVERLAYS */
+    .overlay {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      background: rgba(13,13,13,0.85);
+      backdrop-filter: blur(10px);
+      color: var(--fg);
+      z-index: 20;
+      animation: fadeIn 0.6s forwards;
+    }
+    .overlay.fade {
+      animation: fadeOut 0.6s forwards;
+    }
+    @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+    @keyframes fadeOut { to { opacity:0; transform:scale(0.9) } }
 
-/* — OVERLAYS — */
-.overlay{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;
-  background:rgba(13,13,13,.85);backdrop-filter:blur(10px);color:var(--fg);z-index:20;animation:fadeIn .6s forwards}
-.overlay.fade{animation:fadeOut .6s forwards}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes fadeOut{to{opacity:0;transform:scale(.9)}}
-.overlay h1{font-size:3rem;margin-bottom:.5rem}
-.overlay p{font-size:1.2rem;animation:blink 1.5s infinite}
-@keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.4}}
-.overlay small{opacity:.7;margin-top:1rem;font-size:.8rem}
+    .overlay h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
+    }
+    .overlay p {
+      font-size: 1.2rem;
+      animation: blink 1.5s infinite;
+    }
+    @keyframes blink {
+      0%,50%,100% { opacity:1 }
+      25%,75%   { opacity:0.4 }
+    }
+    .overlay small {
+      opacity: 0.7;
+      margin-top: 1rem;
+      font-size: 0.8rem;
+    }
 
-/* — HUD — */
-#hud{position:absolute;top:1rem;left:1rem;right:1rem;display:flex;justify-content:space-between;z-index:10}
-.hud-box{display:flex;align-items:center;background:var(--glass);backdrop-filter:blur(4px);
-  padding:.5rem 1rem;border-radius:.6rem;color:var(--fg)}
-#hp-bar-container{width:120px;height:16px;background:rgba(255,255,255,.25);border-radius:8px;overflow:hidden;margin-right:.5rem}
-#hp-bar{height:100%;width:100%;background:var(--accent);transition:width .3s ease}
+    /* HUD */
+    #hud {
+      position: absolute;
+      top: 1rem; left: 1rem; right: 1rem;
+      display: flex; justify-content: space-between;
+      z-index: 10;
+    }
+    .hud-box {
+      display: flex; align-items: center;
+      background: var(--glass);
+      backdrop-filter: blur(4px);
+      padding: 0.5rem 1rem;
+      border-radius: 0.6rem;
+      color: var(--fg);
+    }
+    #hp-bar-container {
+      width: 120px; height: 16px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 8px; overflow: hidden;
+      margin-right: 0.5rem;
+    }
+    #hp-bar {
+      height: 100%;
+      width: 100%;
+      background: var(--accent);
+      transition: width 0.3s ease;
+    }
 
-/* — CONTROLS — */
-#controls{position:absolute;bottom:1rem;left:1rem;right:1rem;display:flex;justify-content:space-between;z-index:15;pointer-events:none}
-#dpad{display:grid;grid-template-areas:" . up ." "left down right";gap:.6rem;pointer-events:auto}
-#dpad button,#shoot{width:64px;height:64px;border:none;border-radius:1rem;font-size:1.6rem;
-  background:var(--glass);color:var(--fg);box-shadow:0 4px 8px rgba(0,0,0,.4);transition:.1s transform,.3s background;
-  -webkit-tap-highlight-color:transparent}
-#dpad button:hover,#shoot:hover{background:rgba(230,57,70,.8)}
-#dpad button:active,#shoot:active{transform:scale(.9)}
-#up{grid-area:up}#down{grid-area:down}#left{grid-area:left}#right{grid-area:right}
-#shoot{background:var(--accent);border-radius:50%;pointer-events:auto}
+    /* CONTROLS */
+    #controls {
+      position: absolute;
+      bottom: 1rem; left: 1rem; right: 1rem;
+      display: flex; justify-content: space-between;
+      z-index: 15;
+    }
+    #dpad {
+      display: grid;
+      grid-template-areas: ". up ." "left down right";
+      gap: 0.6rem;
+      pointer-events: auto;
+    }
+    #dpad button, #shoot {
+      width: 64px; height: 64px;
+      border: none; border-radius: 1rem;
+      font-size: 1.6rem;
+      background: var(--glass);
+      color: var(--fg);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+      transition: transform 0.1s, background 0.3s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    #dpad button:hover, #shoot:hover {
+      background: rgba(230,57,70,0.8);
+    }
+    #dpad button:active, #shoot:active {
+      transform: scale(0.9);
+    }
+    #up    { grid-area: up;    }
+    #down  { grid-area: down;  }
+    #left  { grid-area: left;  }
+    #right { grid-area: right; }
 
-/* — GAME OVER — */
-#gameOver{display:none}
-#gameOver h2{font-size:2.4rem;margin-bottom:.4rem}
-#gameOver p{font-size:1.1rem;margin-bottom:1rem}
-#gameOver ol{list-style:none;width:80%;max-width:300px;max-height:160px;overflow-y:auto;margin-bottom:1rem}
-#gameOver li{display:flex;justify-content:space-between;background:var(--glass);padding:.5rem;margin-bottom:.4rem;border-radius:.4rem;font-size:.9rem}
-#gameOver input,#gameOver button{width:80%;max-width:300px;padding:.7rem 1rem;border:none;border-radius:.6rem;font-size:1rem}
-#gameOver input{background:var(--glass);color:var(--fg)}
-#gameOver button{background:var(--accent);color:var(--fg);cursor:pointer;transition:.1s transform,.3s background}
-#gameOver button:hover{background:#d62828}
-#gameOver button:active{transform:scale(.95)}
-</style>
+    #shoot {
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: auto;
+    }
+
+    /* GAME OVER */
+    #gameOver {
+      display: none;
+    }
+    #gameOver h2 {
+      font-size: 2.4rem; margin-bottom: 0.4rem;
+    }
+    #gameOver p {
+      font-size: 1.1rem; margin-bottom: 1rem;
+    }
+    #gameOver button {
+      background: var(--accent);
+      color: var(--fg);
+      cursor: pointer;
+      transition: transform 0.1s, background 0.3s;
+    }
+    #gameOver button:hover {
+      background: #d62828;
+    }
+    #gameOver button:active {
+      transform: scale(0.95);
+    }
+  </style>
 </head>
 <body>
 
-<!-- START -->
-<div id="startOverlay" class="overlay">
-  <h1>StickShot Redux</h1>
-  <p>Tap to Start</p>
-  <small>Allow motion & orientation</small>
-</div>
-
-<!-- CANVAS -->
-<canvas id="gameCanvas"></canvas>
-
-<!-- HUD -->
-<div id="hud">
-  <div class="hud-box">
-    <div id="hp-bar-container"><div id="hp-bar"></div></div>
-    <span id="hp-text">100</span>
+  <!-- START -->
+  <div id="startOverlay" class="overlay">
+    <h1>StickShot Redux</h1>
+    <p>Tap to Start</p>
+    <small>Allow motion & orientation</small>
   </div>
-  <div class="hud-box">Score <span id="score">0</span></div>
-</div>
 
-<!-- CONTROLS -->
-<div id="controls">
-  <div id="dpad">
-    <button id="up">▲</button>
-    <button id="left">◀</button>
-    <button id="down">▼</button>
-    <button id="right">▶</button>
+  <!-- CANVAS -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-box">
+      <div id="hp-bar-container">
+        <div id="hp-bar"></div>
+      </div>
+      <span id="hp-text">100</span>
+    </div>
+    <div class="hud-box">
+      Score <span id="score">0</span>
+    </div>
   </div>
-  <button id="shoot">Shoot</button>
-</div>
 
-<!-- GAME OVER -->
-<div id="gameOver" class="overlay">
-  <h2>Game Over</h2>
-  <p>Your Score: <span id="finalScore">0</span></p>
-  <button id="restartGame">Restart</button>
-</div>
+  <!-- CONTROLS -->
+  <div id="controls">
+    <div id="dpad">
+      <button id="up">▲</button>
+      <button id="left">◀</button>
+      <button id="down">▼</button>
+      <button id="right">▶</button>
+    </div>
+    <button id="shoot">Shoot</button>
+  </div>
 
-<!-- THREE JS -->
-<script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
-<script>
-/* — GLOBAL STATE — */
-let scene,camera,renderer,clock;
-let player,playerGroup,bullets=[],enemies=[];
-let move={forward:false,back:false,left:false,right:false},yaw=0;
-let hp=100,score=0,gameRunning=false;
+  <!-- GAME OVER -->
+  <div id="gameOver" class="overlay">
+    <h2>Game Over</h2>
+    <p>Your Score: <span id="finalScore">0</span></p>
+    <button id="restartGame">Restart</button>
+  </div>
 
-/* — INIT — */
-function init(){
-  /* SCENE */
-  scene=new THREE.Scene();
-  scene.background=new THREE.Color(0x000000);
+  <!-- THREE.JS -->
+  <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
+  <script>
+    // GLOBAL STATE
+    let scene, camera, renderer, clock, spawnInterval;
+    let playerGroup, bullets = [], enemies = [];
+    let move = { forward:false, back:false, left:false, right:false };
+    let yaw = 0, hp = 100, score = 0;
+    let gameRunning = false;
 
-  /* CAMERA */
-  camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,1000);
+    // Reusable geometries/materials
+    const bulletGeo = new THREE.SphereGeometry(0.1,8,8);
+    const bulletMat = new THREE.MeshBasicMaterial({ color:0xffff00 });
+    const enemyGeo  = new THREE.BoxGeometry(0.8,0.8,0.8);
+    const enemyMat  = new THREE.MeshStandardMaterial({ color:0xff0000, metalness:0.3, roughness:0.6 });
 
-  /* LIGHTS */
-  const light=new THREE.HemisphereLight(0xffffff,0x444444,1.2);
-  scene.add(light);
+    function init() {
+      // SCENE
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
 
-  /* PLAYER */
-  playerGroup=new THREE.Group();
-  // simple stick‑figure: body line + head sphere
-  const mat=new THREE.MeshStandardMaterial({color:0xffffff});
-  const bodyGeo=new THREE.CylinderGeometry(.1,.1,1.5,6);
-  const body=new THREE.Mesh(bodyGeo,mat);
-  body.position.y=.75;
-  const head=new THREE.Mesh(new THREE.SphereGeometry(.25,16,16),mat);
-  head.position.y=1.6;
-  playerGroup.add(body,head);
-  scene.add(playerGroup);
+      // CAMERA
+      camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 1000);
 
-  /* FLOOR */
-  const floor=new THREE.Mesh(
-    new THREE.PlaneGeometry(200,200,20,20),
-    new THREE.MeshStandardMaterial({color:0x222222,wireframe:true})
-  );
-  floor.rotation.x=-Math.PI/2;
-  scene.add(floor);
+      // LIGHT
+      const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+      scene.add(light);
 
-  /* RENDERER */
-  renderer=new THREE.WebGLRenderer({canvas:document.getElementById("gameCanvas"),antialias:true});
-  renderer.setSize(innerWidth,innerHeight);
-  renderer.setPixelRatio(devicePixelRatio);
+      // PLAYER (stick figure)
+      playerGroup = new THREE.Group();
+      const mat = new THREE.MeshStandardMaterial({ color:0xffffff });
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,1.5,6), mat);
+      body.position.y = 0.75;
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.25,16,16), mat);
+      head.position.y = 1.6;
+      playerGroup.add(body, head);
+      scene.add(playerGroup);
 
-  clock=new THREE.Clock();
+      // FLOOR
+      const floor = new THREE.Mesh(
+        new THREE.PlaneGeometry(200,200,20,20),
+        new THREE.MeshStandardMaterial({ color:0x222222, wireframe:true })
+      );
+      floor.rotation.x = -Math.PI/2;
+      scene.add(floor);
 
-  /* SPAWN LOOP */
-  setInterval(spawnEnemy,2000);
+      // RENDERER
+      renderer = new THREE.WebGLRenderer({
+        canvas: document.getElementById("gameCanvas"),
+        antialias: true
+      });
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.setPixelRatio(devicePixelRatio);
 
-  /* EVENTS */
-  addControlEvents();
-  window.addEventListener("resize",()=>renderer.setSize(innerWidth,innerHeight));
+      // CLOCK
+      clock = new THREE.Clock();
 
-  gameRunning=true;
-  animate();
-}
+      // EVENTS & CONTROLS
+      addControlEvents();
+      window.addEventListener("resize", onWindowResize);
 
-/* — CONTROLS — */
-function addControlEvents(){
-  const btn=(id,dir)=>{const el=document.getElementById(id);
-    const set=(v)=>move[dir]=v;
-    ["pointerdown","touchstart"].forEach(e=>el.addEventListener(e,ev=>{ev.preventDefault();set(true)}));
-    ["pointerup","pointerleave","touchend","touchcancel"].forEach(e=>el.addEventListener(e,()=>set(false)));
-  };
-  btn("up","forward");btn("down","back");btn("left","left");btn("right","right");
+      // SPAWN LOOP
+      spawnInterval = setInterval(spawnEnemy, 2000);
 
-  const shootBtn=document.getElementById("shoot");
-  ["pointerdown","touchstart","mousedown"].forEach(e=>shootBtn.addEventListener(e,ev=>{
-    ev.preventDefault();shoot();
-  }));
-
-  /* SWIPE ROTATION */
-  let prevX=null;
-  window.addEventListener("pointerdown",e=>{prevX=e.clientX});
-  window.addEventListener("pointermove",e=>{
-    if(prevX!==null){
-      const dx=e.clientX-prevX;
-      yaw-=dx*0.0025; // swipe speed
-      prevX=e.clientX;
+      gameRunning = true;
+      animate();
     }
-  });
-  window.addEventListener("pointerup",()=>prevX=null);
-}
 
-/* — PLAYER UPDATE — */
-function updatePlayer(dt){
-  const dir=new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
-  const side=new THREE.Vector3(-1,0,0).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
-  const speed=5*dt;
-  if(move.forward)playerGroup.position.addScaledVector(dir,speed);
-  if(move.back)   playerGroup.position.addScaledVector(dir,-speed);
-  if(move.left)   playerGroup.position.addScaledVector(side,speed);
-  if(move.right)  playerGroup.position.addScaledVector(side,-speed);
-  playerGroup.rotation.y=yaw;
+    function onWindowResize() {
+      camera.aspect = innerWidth/innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+    }
 
-  /* Camera follow */
-  const camOffset=new THREE.Vector3(0,2,6).applyAxisAngle(new THREE.Vector3(0,1,0),yaw);
-  camera.position.copy(playerGroup.position).add(camOffset);
-  camera.lookAt(playerGroup.position);
-}
+    function addControlEvents() {
+      // D‑pad
+      ["up","down","left","right"].forEach(key => {
+        const dirMap = { up:"forward", down:"back", left:"left", right:"right" };
+        const el = document.getElementById(key);
+        ["pointerdown","touchstart"].forEach(e =>
+          el.addEventListener(e, ev => { ev.preventDefault(); move[dirMap[key]] = true; })
+        );
+        ["pointerup","pointerleave","touchend","touchcancel"].forEach(e =>
+          el.addEventListener(e, () => move[dirMap[key]] = false)
+        );
+      });
 
-/* — SHOOT — */
-function shoot(){
-  const geo=new THREE.SphereGeometry(.1,8,8);
-  const mat=new THREE.MeshBasicMaterial({color:0xffff00});
-  const bullet=new THREE.Mesh(geo,mat);
-  const dir=new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),yaw).normalize();
-  bullet.position.copy(playerGroup.position).add(dir.clone().multiplyScalar(.8)).y+=1;
-  bullet.userData={velocity:dir.multiplyScalar(15)};
-  scene.add(bullet);
-  bullets.push(bullet);
-}
+      // Shoot button
+      const shootBtn = document.getElementById("shoot");
+      ["pointerdown","touchstart"].forEach(e =>
+        shootBtn.addEventListener(e, ev => {
+          ev.preventDefault();
+          if(gameRunning) shoot();
+        })
+      );
 
-/* — ENEMY SPAWN — */
-function spawnEnemy(){
-  if(!gameRunning)return;
-  const geo=new THREE.BoxGeometry(.8,.8,.8);
-  const mat=new THREE.MeshStandardMaterial({color:0xff0000,metalness:.3,roughness:.6});
-  const enemy=new THREE.Mesh(geo,mat);
-  const radius=15;
-  const angle=Math.random()*Math.PI*2;
-  enemy.position.set(
-    playerGroup.position.x+radius*Math.cos(angle),
-    .4,
-    playerGroup.position.z+radius*Math.sin(angle)
-  );
-  enemy.lookAt(playerGroup.position);
-  enemy.userData={speed:1.5};
-  scene.add(enemy);
-  enemies.push(enemy);
-}
+      // Swipe to rotate
+      let prevX = null;
+      window.addEventListener("pointerdown", e => { prevX = e.clientX; });
+      window.addEventListener("pointermove", e => {
+        if(prevX !== null) {
+          yaw -= (e.clientX - prevX) * 0.0025;
+          prevX = e.clientX;
+        }
+      });
+      window.addEventListener("pointerup", () => { prevX = null; });
+    }
 
-/* — COLLISION DETECTION — */
-function checkCollisions(){
-  // bullet / enemy
-  bullets.forEach((b,bIndex)=>{
-    enemies.forEach((en,eIndex)=>{
-      if(b.position.distanceTo(en.position)<.6){
-        // hit
-        scene.remove(b);scene.remove(en);
-        bullets.splice(bIndex,1);
-        enemies.splice(eIndex,1);
-        score+=10;
-        document.getElementById("score").textContent=score;
+    function updatePlayer(dt) {
+      const forwardVec = new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
+      const sideVec    = new THREE.Vector3(-1,0,0).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
+      const speed      = 5 * dt;
+      if(move.forward) playerGroup.position.addScaledVector(forwardVec, speed);
+      if(move.back)    playerGroup.position.addScaledVector(forwardVec, -speed);
+      if(move.left)    playerGroup.position.addScaledVector(sideVec, speed);
+      if(move.right)   playerGroup.position.addScaledVector(sideVec, -speed);
+
+      playerGroup.rotation.y = yaw;
+
+      // Camera follows the player
+      const camOffset = new THREE.Vector3(0,2,6).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
+      camera.position.copy(playerGroup.position).add(camOffset);
+      camera.lookAt(playerGroup.position);
+    }
+
+    function shoot() {
+      const bullet = new THREE.Mesh(bulletGeo, bulletMat);
+      const dir = new THREE.Vector3(0,0,-1)
+                 .applyAxisAngle(new THREE.Vector3(0,1,0), yaw)
+                 .normalize();
+      bullet.position.copy(playerGroup.position)
+                     .add(dir.clone().multiplyScalar(0.8));
+      bullet.position.y += 1;
+      bullet.userData.velocity = dir.multiplyScalar(15);
+      scene.add(bullet);
+      bullets.push(bullet);
+    }
+
+    function spawnEnemy() {
+      if(!gameRunning) return;
+      const enemy = new THREE.Mesh(enemyGeo, enemyMat);
+      const radius = 15;
+      const angle = Math.random() * Math.PI * 2;
+      enemy.position.set(
+        playerGroup.position.x + radius * Math.cos(angle),
+        0.4,
+        playerGroup.position.z + radius * Math.sin(angle)
+      );
+      enemy.userData.speed = 1.5;
+      scene.add(enemy);
+      enemies.push(enemy);
+    }
+
+    function checkCollisions() {
+      // bullets vs enemies
+      for(let i = bullets.length - 1; i >= 0; i--) {
+        for(let j = enemies.length - 1; j >= 0; j--) {
+          if(bullets[i].position.distanceTo(enemies[j].position) < 0.6) {
+            scene.remove(bullets[i]);
+            scene.remove(enemies[j]);
+            bullets.splice(i,1);
+            enemies.splice(j,1);
+            score += 10;
+            document.getElementById("score").textContent = score;
+            break;
+          }
+        }
       }
-    });
-  });
-  // enemy / player
-  enemies.forEach((en,eIndex)=>{
-    if(en.position.distanceTo(playerGroup.position)<1){
-      hp-=10;
-      document.getElementById("hp-bar").style.width=hp+"%";
-      document.getElementById("hp-text").textContent=hp;
-      scene.remove(en);
-      enemies.splice(eIndex,1);
-      if(hp<=0)endGame();
+      // enemies vs player
+      for(let i = enemies.length - 1; i >= 0; i--) {
+        if(enemies[i].position.distanceTo(playerGroup.position) < 1) {
+          hp -= 10;
+          document.getElementById("hp-bar").style.width = hp + "%";
+          document.getElementById("hp-text").textContent = hp;
+          scene.remove(enemies[i]);
+          enemies.splice(i,1);
+          if(hp <= 0) {
+            endGame();
+            return;
+          }
+        }
+      }
     }
-  });
-}
 
-/* — ANIMATE — */
-function animate(){
-  if(!gameRunning)return;
-  requestAnimationFrame(animate);
-  const dt=clock.getDelta();
+    function animate() {
+      if(!gameRunning) return;
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
 
-  updatePlayer(dt);
+      updatePlayer(dt);
 
-  /* Update bullets */
-  bullets.forEach((b,i)=>{
-    b.position.addScaledVector(b.userData.velocity,dt);
-    if(b.position.distanceTo(playerGroup.position)>50){
-      scene.remove(b);bullets.splice(i,1);
+      // move bullets
+      bullets.forEach((b,i) => {
+        b.position.addScaledVector(b.userData.velocity, dt);
+        if(b.position.distanceTo(playerGroup.position) > 50) {
+          scene.remove(b);
+          bullets.splice(i,1);
+        }
+      });
+
+      // move enemies
+      enemies.forEach(en => {
+        const dir = new THREE.Vector3()
+                       .subVectors(playerGroup.position, en.position)
+                       .setY(0)
+                       .normalize();
+        en.position.addScaledVector(dir, en.userData.speed * dt);
+      });
+
+      checkCollisions();
+      renderer.render(scene, camera);
     }
-  });
 
-  /* Update enemies */
-  enemies.forEach(en=>{
-    const toPlayer=new THREE.Vector3().subVectors(playerGroup.position,en.position).setY(0).normalize();
-    en.position.addScaledVector(toPlayer,en.userData.speed*dt);
-  });
+    function startGame() {
+      const so = document.getElementById("startOverlay");
+      so.classList.add("fade");
+      setTimeout(() => so.style.display = "none", 600);
+      init();
+    }
 
-  checkCollisions();
-  renderer.render(scene,camera);
-}
+    function endGame() {
+      gameRunning = false;
+      clearInterval(spawnInterval);
+      document.getElementById("finalScore").textContent = score;
+      document.getElementById("gameOver").style.display = "flex";
+    }
 
-/* — GAME FLOW — */
-function startGame(){
-  document.getElementById("startOverlay").classList.add("fade");
-  setTimeout(()=>document.getElementById("startOverlay").style.display="none",600);
-  init();
-}
-function endGame(){
-  gameRunning=false;
-  document.getElementById("finalScore").textContent=score;
-  document.getElementById("gameOver").style.display="flex";
-}
-function resetGame(){
-  // clean scene
-  bullets.forEach(b=>scene.remove(b));
-  enemies.forEach(e=>scene.remove(e));
-  bullets=[];enemies=[];
-  hp=100;score=0;
-  document.getElementById("hp-bar").style.width="100%";
-  document.getElementById("hp-text").textContent="100";
-  document.getElementById("score").textContent="0";
-  playerGroup.position.set(0,0,0);
-  yaw=0;
-  document.getElementById("gameOver").style.display="none";
-  gameRunning=true;
-  clock.start();
-  animate();
-}
+    function resetGame() {
+      // clean up
+      bullets.forEach(b => scene.remove(b));
+      enemies.forEach(e => scene.remove(e));
+      bullets = [];
+      enemies = [];
+      hp = 100; score = 0; yaw = 0;
+      document.getElementById("hp-bar").style.width = "100%";
+      document.getElementById("hp-text").textContent = "100";
+      document.getElementById("score").textContent = "0";
+      playerGroup.position.set(0,0,0);
+      document.getElementById("gameOver").style.display = "none";
+      clock = new THREE.Clock();
 
-/* — EVENT BINDINGS — */
-document.getElementById("restartGame").addEventListener("click",resetGame);
-["pointerdown","touchstart"].forEach(e=>document.getElementById("startOverlay").addEventListener(e,startGame,{once:true}));
-</script>
+      // restart spawn loop
+      spawnInterval = setInterval(spawnEnemy, 2000);
+      gameRunning = true;
+      animate();
+    }
+
+    // Bind events
+    document.getElementById("restartGame")
+            .addEventListener("click", resetGame);
+    ["pointerdown","touchstart"].forEach(e =>
+      document.getElementById("startOverlay")
+              .addEventListener(e, startGame, { once:true })
+    );
+  </script>
 </body>
 </html>
