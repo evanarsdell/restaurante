@@ -160,14 +160,10 @@
   <!-- HUD -->
   <div id="hud">
     <div class="hud-box">
-      <div id="hp-bar-container">
-        <div id="hp-bar"></div>
-      </div>
+      <div id="hp-bar-container"><div id="hp-bar"></div></div>
       <span id="hp-text">100</span>
       <div id="lowHealthWarning">⚠ Low Health!</div>
-      <div id="highScoreBox">
-        High <span id="highScore">0</span>
-      </div>
+      <div id="highScoreBox">High <span id="highScore">0</span></div>
     </div>
     <div class="hud-box">Score <span id="score">0</span></div>
   </div>
@@ -198,11 +194,9 @@
     let move = { forward:false, back:false, left:false, right:false };
     let yaw = 0, hp = 100, score = 0, highScore = 0, gameRunning = false;
 
-    // Geometry & material
     const bulletGeo = new THREE.SphereGeometry(0.1,8,8);
     const bulletMat = new THREE.MeshBasicMaterial({ color:0xffff00 });
 
-    // Checkerboard grass
     function makeGroundTex(){
       const size=512, step=32;
       const c=document.createElement('canvas');
@@ -218,13 +212,11 @@
       return t;
     }
 
-    // Scary monster with angry face
     function makeMonster(){
       const g=new THREE.Group();
       const mat=new THREE.MeshStandardMaterial({ color:0xff0000 });
       const body=new THREE.Mesh(new THREE.SphereGeometry(0.6,16,16), mat);
       g.add(body);
-      // spikes
       for(let i=0;i<12;i++){
         const cone=new THREE.Mesh(new THREE.ConeGeometry(0.1,0.4,6), mat);
         const ang=i/12*Math.PI*2;
@@ -232,7 +224,6 @@
         cone.rotation.z=ang;
         g.add(cone);
       }
-      // eyes
       const eyeMat=new THREE.MeshBasicMaterial({ color:0x000000 });
       const eyeGeo=new THREE.SphereGeometry(0.08,8,8);
       const leftEye=new THREE.Mesh(eyeGeo,eyeMat);
@@ -240,40 +231,33 @@
       const rightEye=leftEye.clone();
       rightEye.position.x=0.2;
       g.add(leftEye, rightEye);
-      // angry frown
       const mouthMat=new THREE.MeshBasicMaterial({ color:0x000000 });
       const mouthGeo=new THREE.TorusGeometry(0.25,0.04,8,16,Math.PI);
       const mouth=new THREE.Mesh(mouthGeo, mouthMat);
       mouth.rotation.x=Math.PI;
       mouth.position.set(0,0.1,0.55);
       g.add(mouth);
-
       return g;
     }
     const monsterTemplate=makeMonster();
 
-    // Simple stick‑figure player + rifle
     function makePlayer(){
       const g=new THREE.Group();
       const mat=new THREE.MeshStandardMaterial({ color:0xffffff });
-      // body
       const body=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,1.5,6),mat);
       body.position.y=0.75; g.add(body);
-      // head
       const head=new THREE.Mesh(new THREE.SphereGeometry(0.25,16,16),mat);
       head.position.y=1.6; g.add(head);
-      // rifle
       const gunMat=new THREE.MeshStandardMaterial({ color:0x333333 });
       const barrel=new THREE.Mesh(new THREE.BoxGeometry(0.05,0.05,0.8),gunMat);
       barrel.position.set(0,1.2,-0.4); g.add(barrel);
       return g;
     }
 
-    // Load high score
     function loadHighScore(){
-      const hs = parseInt(localStorage.getItem('stickshot_highscore'))||0;
-      highScore = hs;
-      document.getElementById('highScore').textContent = highScore;
+      const hs=parseInt(localStorage.getItem('stickshot_highscore'))||0;
+      highScore=hs;
+      document.getElementById('highScore').textContent=hs;
     }
 
     function init(){
@@ -293,18 +277,15 @@
       floor.rotation.x=-Math.PI/2;
       scene.add(floor);
 
-      renderer=new THREE.WebGLRenderer({
-        canvas:document.getElementById('gameCanvas'),
-        antialias:true
-      });
+      renderer=new THREE.WebGLRenderer({ canvas:document.getElementById('gameCanvas'), antialias:true });
       renderer.setSize(innerWidth,innerHeight);
       renderer.setPixelRatio(devicePixelRatio);
       clock=new THREE.Clock();
 
       addControls();
       window.addEventListener('resize',onResize);
-
       spawnInterval=setInterval(spawnEnemy,2000);
+
       gameRunning=true;
       animate();
     }
@@ -319,25 +300,20 @@
       ['up','down','left','right'].forEach(key=>{
         const map={up:'forward',down:'back',left:'left',right:'right'};
         const btn=document.getElementById(key);
-        ['pointerdown','touchstart'].forEach(e=>
-          btn.addEventListener(e,ev=>{ev.preventDefault();move[map[key]]=true})
-        );
-        ['pointerup','pointerleave','touchend','touchcancel'].forEach(e=>
-          btn.addEventListener(e,()=>move[map[key]]=false)
-        );
+        ['pointerdown','touchstart'].forEach(e=>btn.addEventListener(e,ev=>{ev.preventDefault();move[map[key]]=true}));
+        ['pointerup','pointerleave','touchend','touchcancel'].forEach(e=>btn.addEventListener(e,()=>move[map[key]]=false));
       });
-      const shootBtn=document.getElementById('shoot');
       ['pointerdown','touchstart'].forEach(e=>
-        shootBtn.addEventListener(e,ev=>{ev.preventDefault(); if(gameRunning) shoot()})
+        document.getElementById('shoot').addEventListener(e,ev=>{ev.preventDefault();if(gameRunning)shoot()})
       );
       let prevX=null;
       const c=renderer.domElement;
       c.addEventListener('pointerdown',e=>prevX=e.clientX);
       c.addEventListener('pointermove',e=>{
         if(prevX!==null){
-          yaw -= (e.clientX-prevX)*0.0025;
-          yaw = (yaw%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
-          prevX = e.clientX;
+          yaw-=(e.clientX-prevX)*0.0025;
+          yaw=(yaw%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+          prevX=e.clientX;
         }
       });
       ['pointerup','touchcancel','pointerleave'].forEach(e=>c.addEventListener(e,()=>prevX=null));
@@ -360,9 +336,7 @@
     function shoot(){
       const b=new THREE.Mesh(bulletGeo,bulletMat);
       const dir=new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0),yaw).normalize();
-      b.position.copy(playerGroup.position)
-       .add(dir.clone().multiplyScalar(0.8))
-       .setY(playerGroup.position.y+1);
+      b.position.copy(playerGroup.position).add(dir.clone().multiplyScalar(0.8)).setY(playerGroup.position.y+1);
       b.userData.velocity=dir.multiplyScalar(20);
       scene.add(b);
       bullets.push(b);
@@ -373,27 +347,20 @@
       const m=monsterTemplate.clone();
       m.scale.set(1,2,1);
       const r=20,a=Math.random()*Math.PI*2;
-      m.position.set(
-        playerGroup.position.x + r*Math.cos(a),
-        0,
-        playerGroup.position.z + r*Math.sin(a)
-      );
+      m.position.set(playerGroup.position.x+r*Math.cos(a),0,playerGroup.position.z+r*Math.sin(a));
       scene.add(m);
       enemies.push(m);
     }
 
     function updateHealthUI(){
       const pct=hp/100;
-      const green=Math.round(255*pct), red=Math.round(255*(1-pct));
-      document.getElementById('hp-bar').style.background = `rgb(${red},${green},0)`;
-      document.getElementById('hp-text').textContent = hp;
-      const warn = document.getElementById('lowHealthWarning');
-      if(hp<=30) warn.style.display='block';
-      else       warn.style.display='none';
+      const green=Math.round(255*pct),red=Math.round(255*(1-pct));
+      document.getElementById('hp-bar').style.background=`rgb(${red},${green},0)`;
+      document.getElementById('hp-text').textContent=hp;
+      document.getElementById('lowHealthWarning').style.display=hp<=30?'block':'none';
     }
 
     function checkCollisions(){
-      // bullets → enemies
       for(let i=bullets.length-1;i>=0;i--){
         const b=bullets[i];
         for(let j=enemies.length-1;j>=0;j--){
@@ -402,28 +369,26 @@
           if(Math.hypot(dx,dz)<0.6){
             scene.remove(b); scene.remove(e);
             bullets.splice(i,1); enemies.splice(j,1);
-            score++;
-            document.getElementById('score').textContent = score;
+            score++; document.getElementById('score').textContent=score;
             if(score>highScore){
               highScore=score;
               localStorage.setItem('stickshot_highscore',highScore);
-              document.getElementById('highScore').textContent = highScore;
+              document.getElementById('highScore').textContent=highScore;
             }
             break;
           }
         }
       }
-      // enemies → player
       for(let i=enemies.length-1;i>=0;i--){
         if(enemies[i].position.distanceTo(playerGroup.position)<1.2){
-          hp = Math.max(0,hp-10);
-          document.getElementById('hp-bar').style.width = hp+'%';
+          hp=Math.max(0,hp-10);
+          document.getElementById('hp-bar').style.width=hp+'%';
           updateHealthUI();
           scene.remove(enemies[i]); enemies.splice(i,1);
           if(hp<=0){ endGame(); return; }
         }
       }
-      // NOTE: no more TTL – bullets fly forever
+      bullets.forEach(b=>b.position.addScaledVector(b.userData.velocity,clock.getDelta()));
     }
 
     function animate(){
@@ -431,10 +396,8 @@
       requestAnimationFrame(animate);
       const dt=clock.getDelta();
       updatePlayer(dt);
-      bullets.forEach(b=>b.position.addScaledVector(b.userData.velocity,dt));
       enemies.forEach(e=>{
-        const dir=new THREE.Vector3().subVectors(playerGroup.position,e.position)
-                          .setY(0).normalize();
+        const dir=new THREE.Vector3().subVectors(playerGroup.position,e.position).setY(0).normalize();
         e.position.addScaledVector(dir,1.5*dt);
       });
       checkCollisions();
@@ -446,15 +409,11 @@
       document.getElementById('loadingOverlay').classList.add('hidden');
       const so=document.getElementById('startOverlay');
       so.classList.remove('hidden');
-      so.addEventListener('pointerdown',()=>{
-        so.classList.add('hidden');
-        init();
-      },{once:true});
+      so.addEventListener('pointerdown',()=>{ so.classList.add('hidden'); init(); },{once:true});
     }
 
     function endGame(){
-      gameRunning=false;
-      clearInterval(spawnInterval);
+      gameRunning=false; clearInterval(spawnInterval);
       document.getElementById('finalScore').textContent=score;
       document.getElementById('gameOver').classList.remove('hidden');
     }
