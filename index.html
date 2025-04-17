@@ -9,26 +9,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
         rel="stylesheet">
   <style>
-    /* RESET / BASE */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    html, body {
-      width: 100%; height: 100%;
-      background: #0d0d0d;
-      font-family: 'Poppins', sans-serif;
-      overflow: hidden;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      user-select: none;
-      touch-action: none; /* disable double-tap zoom / gestures */
+    /* — RESET / BASE — */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body {
+      width:100%;height:100%;
+      background:#0d0d0d;
+      font-family:'Poppins',sans-serif;
+      overflow:hidden;
+      touch-action:none;
+      user-select:none;
     }
     canvas {
-      display: block;
-      width: 100%; height: 100%;
-      touch-action: none;
+      display:block;
+      width:100%;height:100%;
+      touch-action:none;
     }
 
     :root {
@@ -37,141 +31,126 @@
       --glass: rgba(255,255,255,0.12);
     }
 
-    /* OVERLAYS */
+    /* — OVERLAYS — */
     .overlay {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      justify-content: center; align-items: center;
-      background: rgba(13,13,13,0.85);
-      backdrop-filter: blur(10px);
-      color: var(--fg);
-      z-index: 20;
-      animation: fadeIn 0.6s forwards;
+      position:absolute;inset:0;
+      display:flex;flex-direction:column;
+      justify-content:center;align-items:center;
+      background:rgba(13,13,13,0.85);
+      backdrop-filter:blur(10px);
+      color:var(--fg);
+      z-index:20;
+      animation:fadeIn .6s forwards;
     }
-    .overlay.fade {
-      animation: fadeOut 0.6s forwards;
-    }
-    @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
-    @keyframes fadeOut { to { opacity:0; transform:scale(0.9) } }
+    .overlay.fade { animation:fadeOut .6s forwards }
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    @keyframes fadeOut{to{opacity:0;transform:scale(.9)}}
 
-    .overlay h1 {
-      font-size: 3rem;
-      margin-bottom: 0.5rem;
-    }
+    .overlay h1 { font-size:3rem;margin-bottom:.5rem }
     .overlay p {
-      font-size: 1.2rem;
-      animation: blink 1.5s infinite;
+      font-size:1.2rem;
+      animation:blink 1.5s infinite;
     }
-    @keyframes blink {
-      0%,50%,100% { opacity:1 }
-      25%,75%   { opacity:0.4 }
-    }
+    @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.4}}
     .overlay small {
-      opacity: 0.7;
-      margin-top: 1rem;
-      font-size: 0.8rem;
+      opacity:.7;margin-top:1rem;font-size:.8rem;
     }
 
-    /* HUD */
+    /* — HUD — */
     #hud {
-      position: absolute;
-      top: 1rem; left: 1rem; right: 1rem;
-      display: flex; justify-content: space-between;
-      z-index: 10;
+      position:absolute;top:1rem;left:1rem;right:1rem;
+      display:flex;justify-content:space-between;
+      z-index:10;
+      pointer-events:none;
     }
     .hud-box {
-      display: flex; align-items: center;
-      background: var(--glass);
-      backdrop-filter: blur(4px);
-      padding: 0.5rem 1rem;
-      border-radius: 0.6rem;
-      color: var(--fg);
+      display:flex;align-items:center;
+      background:var(--glass);
+      backdrop-filter:blur(6px);
+      padding:.6rem 1.2rem;
+      border-radius:1rem;
+      color:var(--fg);
+      box-shadow:0 8px 24px rgba(0,0,0,0.6);
+      pointer-events:auto;
     }
     #hp-bar-container {
-      width: 120px; height: 16px;
-      background: rgba(255,255,255,0.25);
-      border-radius: 8px; overflow: hidden;
-      margin-right: 0.5rem;
+      width:140px;height:18px;
+      background:rgba(255,255,255,0.25);
+      border-radius:9px;overflow:hidden;
+      margin-right:.6rem;
     }
     #hp-bar {
-      height: 100%;
-      width: 100%;
-      background: var(--accent);
-      transition: width 0.3s ease;
+      height:100%;
+      width:100%;
+      background:linear-gradient(90deg, #e63946, #d62828);
+      transition:width .3s ease;
     }
+    .hud-box span { font-weight:600 }
 
-    /* CONTROLS */
+    /* — CONTROLS — */
     #controls {
-      position: absolute;
-      bottom: 1rem; left: 1rem; right: 1rem;
-      display: flex; justify-content: space-between;
-      z-index: 15;
+      position:absolute;bottom:1rem;left:1rem;right:1rem;
+      display:flex;justify-content:space-between;
+      z-index:15;
+      pointer-events:none;
     }
     #dpad {
-      display: grid;
-      grid-template-areas: ". up ." "left down right";
-      gap: 0.6rem;
-      pointer-events: auto;
+      display:grid;
+      grid-template-areas:". up ." "left down right";
+      gap:.6rem;
+      pointer-events:auto;
     }
     #dpad button, #shoot {
-      width: 64px; height: 64px;
-      border: none; border-radius: 1rem;
-      font-size: 1.6rem;
-      background: var(--glass);
-      color: var(--fg);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-      transition: transform 0.1s, background 0.3s;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+      width:64px;height:64px;
+      border:none;border-radius:1rem;
+      font-size:1.6rem;
+      background:var(--glass);
+      color:var(--fg);
+      box-shadow:0 6px 16px rgba(0,0,0,0.5);
+      transition:transform .1s,background .3s;
+      -webkit-tap-highlight-color:transparent;
+      touch-action:manipulation;
+      pointer-events:auto;
     }
     #dpad button:hover, #shoot:hover {
-      background: rgba(230,57,70,0.8);
+      background:rgba(230,57,70,.8);
     }
     #dpad button:active, #shoot:active {
-      transform: scale(0.9);
+      transform:scale(.9);
     }
-    #up    { grid-area: up;    }
-    #down  { grid-area: down;  }
-    #left  { grid-area: left;  }
-    #right { grid-area: right; }
-
+    #up    { grid-area: up }
+    #down  { grid-area: down }
+    #left  { grid-area: left }
+    #right { grid-area: right }
     #shoot {
-      background: var(--accent);
-      border-radius: 50%;
-      pointer-events: auto;
+      background:radial-gradient(circle at 30% 30%, #e63946, #a32232);
+      border-radius:50%;
     }
 
-    /* GAME OVER */
-    #gameOver {
-      display: none;
-    }
-    #gameOver h2 {
-      font-size: 2.4rem; margin-bottom: 0.4rem;
-    }
-    #gameOver p {
-      font-size: 1.1rem; margin-bottom: 1rem;
-    }
+    /* — GAME OVER — */
+    #gameOver { display:none; }
+    #gameOver h2 { font-size:2.4rem;margin-bottom:.5rem }
+    #gameOver p  { font-size:1.2rem;margin-bottom:1rem }
     #gameOver button {
-      background: var(--accent);
-      color: var(--fg);
-      cursor: pointer;
-      transition: transform 0.1s, background 0.3s;
+      background:var(--accent);
+      color:var(--fg);
+      padding:.8rem 1.2rem;
+      border:none;border-radius:.8rem;
+      font-size:1.1rem;
+      cursor:pointer;
+      transition:transform .1s,background .3s;
     }
-    #gameOver button:hover {
-      background: #d62828;
-    }
-    #gameOver button:active {
-      transform: scale(0.95);
-    }
+    #gameOver button:hover { background:#d62828 }
+    #gameOver button:active { transform:scale(.95) }
   </style>
 </head>
 <body>
 
-  <!-- START -->
+  <!-- START OVERLAY -->
   <div id="startOverlay" class="overlay">
-    <h1>StickShot Redux</h1>
-    <p>Tap to Start</p>
-    <small>Allow motion & orientation</small>
+    <h1>StickShot Redux</h1>
+    <p>Tap to Start</p>
+    <small>Allow motion & orientation</small>
   </div>
 
   <!-- CANVAS -->
@@ -203,61 +182,128 @@
 
   <!-- GAME OVER -->
   <div id="gameOver" class="overlay">
-    <h2>Game Over</h2>
-    <p>Your Score: <span id="finalScore">0</span></p>
+    <h2>Game Over</h2>
+    <p>Your Score: <span id="finalScore">0</span></p>
     <button id="restartGame">Restart</button>
   </div>
 
   <!-- THREE.JS -->
   <script src="https://unpkg.com/three@0.155.0/build/three.min.js"></script>
   <script>
-    // GLOBAL STATE
+    // GLOBALS
     let scene, camera, renderer, clock, spawnInterval;
     let playerGroup, bullets = [], enemies = [];
     let move = { forward:false, back:false, left:false, right:false };
-    let yaw = 0, hp = 100, score = 0;
-    let gameRunning = false;
+    let yaw = 0, hp = 100, score = 0, gameRunning = false;
 
-    // Reusable geometries/materials
-    const bulletGeo = new THREE.SphereGeometry(0.1,8,8);
+    // PREMADE GEOMETRIES & MATERIALS
+    const bulletGeo = new THREE.SphereGeometry(0.1, 8, 8);
     const bulletMat = new THREE.MeshBasicMaterial({ color:0xffff00 });
-    const enemyGeo  = new THREE.BoxGeometry(0.8,0.8,0.8);
-    const enemyMat  = new THREE.MeshStandardMaterial({ color:0xff0000, metalness:0.3, roughness:0.6 });
+    const grassSize = 512;
 
-    function init() {
+    // Create grass texture with grid
+    function makeGrassTexture(){
+      const canvas = document.createElement('canvas');
+      canvas.width = canvas.height = grassSize;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#3c9c2e';
+      ctx.fillRect(0,0,grassSize,grassSize);
+      ctx.strokeStyle = '#2e7d23';
+      ctx.lineWidth = 4;
+      const grid = 16;
+      const step = grassSize / grid;
+      for(let i=0;i<=grid;i++){
+        ctx.beginPath();
+        ctx.moveTo(i*step,0);
+        ctx.lineTo(i*step,grassSize);
+        ctx.moveTo(0,i*step);
+        ctx.lineTo(grassSize,i*step);
+        ctx.stroke();
+      }
+      const tex = new THREE.CanvasTexture(canvas);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.repeat.set(20,20);
+      return tex;
+    }
+
+    // Build one stick-figure enemy template
+    function makeStickEnemy(){
+      const group = new THREE.Group();
+      const mat = new THREE.MeshStandardMaterial({ color:0xffffff });
+      // Body
+      const body = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.2,0.2,1.5,6), mat
+      );
+      body.position.y = 0.75;
+      group.add(body);
+      // Head
+      const head = new THREE.Mesh(
+        new THREE.SphereGeometry(0.3,16,16), mat
+      );
+      head.position.y = 1.6;
+      group.add(head);
+      // Eyes
+      const eyeMat = new THREE.MeshBasicMaterial({ color:0x000000 });
+      const eyeGeo = new THREE.SphereGeometry(0.04,8,8);
+      const leftEye  = new THREE.Mesh(eyeGeo, eyeMat);
+      const rightEye = leftEye.clone();
+      leftEye.position.set(-0.1, 1.7, 0.26);
+      rightEye.position.set( 0.1, 1.7, 0.26);
+      group.add(leftEye, rightEye);
+      // Smile (half‑torus)
+      const smile = new THREE.Mesh(
+        new THREE.TorusGeometry(0.15, 0.02, 8, 16, Math.PI),
+        eyeMat
+      );
+      smile.rotation.x = Math.PI;
+      smile.position.set(0,1.5,0.26);
+      group.add(smile);
+
+      return group;
+    }
+    const enemyTemplate = makeStickEnemy();
+
+    function init(){
       // SCENE
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x000000);
+      scene.background = new THREE.Color(0x87ceeb);
 
       // CAMERA
       camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.1, 1000);
 
       // LIGHT
-      const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
-      scene.add(light);
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+      scene.add(hemi);
 
-      // PLAYER (stick figure)
+      // PLAYER
       playerGroup = new THREE.Group();
-      const mat = new THREE.MeshStandardMaterial({ color:0xffffff });
-      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,1.5,6), mat);
-      body.position.y = 0.75;
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.25,16,16), mat);
-      head.position.y = 1.6;
-      playerGroup.add(body, head);
+      const pMat = new THREE.MeshStandardMaterial({ color:0xffffff });
+      const pBody = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.1,0.1,1.5,6), pMat
+      );
+      pBody.position.y = 0.75;
+      const pHead = new THREE.Mesh(
+        new THREE.SphereGeometry(0.25,16,16), pMat
+      );
+      pHead.position.y = 1.6;
+      playerGroup.add(pBody, pHead);
       scene.add(playerGroup);
 
-      // FLOOR
+      // GRASS FLOOR
       const floor = new THREE.Mesh(
-        new THREE.PlaneGeometry(200,200,20,20),
-        new THREE.MeshStandardMaterial({ color:0x222222, wireframe:true })
+        new THREE.PlaneGeometry(200,200),
+        new THREE.MeshStandardMaterial({
+          map: makeGrassTexture(),
+          roughness:1, metalness:0
+        })
       );
       floor.rotation.x = -Math.PI/2;
       scene.add(floor);
 
       // RENDERER
       renderer = new THREE.WebGLRenderer({
-        canvas: document.getElementById("gameCanvas"),
-        antialias: true
+        canvas:document.getElementById('gameCanvas'),
+        antialias:true
       });
       renderer.setSize(innerWidth, innerHeight);
       renderer.setPixelRatio(devicePixelRatio);
@@ -265,61 +311,71 @@
       // CLOCK
       clock = new THREE.Clock();
 
-      // EVENTS & CONTROLS
+      // CONTROLS
       addControlEvents();
-      window.addEventListener("resize", onWindowResize);
 
-      // SPAWN LOOP
+      // RESPOND TO RESIZE
+      window.addEventListener('resize', onResize);
+
+      // SPAWN ENEMIES
       spawnInterval = setInterval(spawnEnemy, 2000);
 
       gameRunning = true;
       animate();
     }
 
-    function onWindowResize() {
+    function onResize(){
       camera.aspect = innerWidth/innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(innerWidth, innerHeight);
     }
 
-    function addControlEvents() {
+    function addControlEvents(){
       // D‑pad
-      ["up","down","left","right"].forEach(key => {
-        const dirMap = { up:"forward", down:"back", left:"left", right:"right" };
-        const el = document.getElementById(key);
-        ["pointerdown","touchstart"].forEach(e =>
-          el.addEventListener(e, ev => { ev.preventDefault(); move[dirMap[key]] = true; })
+      ['up','down','left','right'].forEach(dir=>{
+        const map = { up:'forward', down:'back', left:'left', right:'right' };
+        const btn = document.getElementById(dir);
+        ['pointerdown','touchstart'].forEach(e=>
+          btn.addEventListener(e, ev=>{ ev.preventDefault(); move[map[dir]] = true; })
         );
-        ["pointerup","pointerleave","touchend","touchcancel"].forEach(e =>
-          el.addEventListener(e, () => move[dirMap[key]] = false)
+        ['pointerup','pointerleave','touchend','touchcancel'].forEach(e=>
+          btn.addEventListener(e, ()=>move[map[dir]] = false)
         );
       });
 
-      // Shoot button
-      const shootBtn = document.getElementById("shoot");
-      ["pointerdown","touchstart"].forEach(e =>
-        shootBtn.addEventListener(e, ev => {
+      // Shoot
+      const shootBtn = document.getElementById('shoot');
+      ['pointerdown','touchstart'].forEach(e=>
+        shootBtn.addEventListener(e, ev=>{
           ev.preventDefault();
           if(gameRunning) shoot();
         })
       );
 
-      // Swipe to rotate
+      // Swipe to rotate (only on canvas)
       let prevX = null;
-      window.addEventListener("pointerdown", e => { prevX = e.clientX; });
-      window.addEventListener("pointermove", e => {
-        if(prevX !== null) {
-          yaw -= (e.clientX - prevX) * 0.0025;
+      const canvasEl = renderer.domElement;
+      canvasEl.addEventListener('pointerdown', e=>{ prevX = e.clientX; });
+      canvasEl.addEventListener('pointermove', e=>{
+        if(prevX!==null){
+          const dx = e.clientX - prevX;
+          yaw -= dx * 0.0025;
+          // wrap between 0 and 2PI
+          yaw = (yaw % (2*Math.PI) + 2*Math.PI) % (2*Math.PI);
           prevX = e.clientX;
         }
       });
-      window.addEventListener("pointerup", () => { prevX = null; });
+      ['pointerup','touchcancel','pointerleave'].forEach(evt=>
+        canvasEl.addEventListener(evt, ()=>{ prevX = null; })
+      );
     }
 
-    function updatePlayer(dt) {
-      const forwardVec = new THREE.Vector3(0,0,-1).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
-      const sideVec    = new THREE.Vector3(-1,0,0).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
-      const speed      = 5 * dt;
+    function updatePlayer(dt){
+      const forwardVec = new THREE.Vector3(0,0,-1)
+                         .applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
+      const sideVec    = new THREE.Vector3(-1,0,0)
+                         .applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
+      const speed = 5 * dt;
       if(move.forward) playerGroup.position.addScaledVector(forwardVec, speed);
       if(move.back)    playerGroup.position.addScaledVector(forwardVec, -speed);
       if(move.left)    playerGroup.position.addScaledVector(sideVec, speed);
@@ -327,72 +383,69 @@
 
       playerGroup.rotation.y = yaw;
 
-      // Camera follows the player
-      const camOffset = new THREE.Vector3(0,2,6).applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
+      // camera follow
+      const camOffset = new THREE.Vector3(0,2,6)
+                          .applyAxisAngle(new THREE.Vector3(0,1,0), yaw);
       camera.position.copy(playerGroup.position).add(camOffset);
       camera.lookAt(playerGroup.position);
     }
 
-    function shoot() {
-      const bullet = new THREE.Mesh(bulletGeo, bulletMat);
+    function shoot(){
+      const b = new THREE.Mesh(bulletGeo, bulletMat);
       const dir = new THREE.Vector3(0,0,-1)
-                 .applyAxisAngle(new THREE.Vector3(0,1,0), yaw)
-                 .normalize();
-      bullet.position.copy(playerGroup.position)
-                     .add(dir.clone().multiplyScalar(0.8));
-      bullet.position.y += 1;
-      bullet.userData.velocity = dir.multiplyScalar(15);
-      scene.add(bullet);
-      bullets.push(bullet);
+                     .applyAxisAngle(new THREE.Vector3(0,1,0), yaw)
+                     .normalize();
+      b.position.copy(playerGroup.position)
+        .add(dir.clone().multiplyScalar(0.8))
+        .setY(playerGroup.position.y + 1);
+      b.userData.velocity = dir.multiplyScalar(20);
+      scene.add(b);
+      bullets.push(b);
     }
 
-    function spawnEnemy() {
+    function spawnEnemy(){
       if(!gameRunning) return;
-      const enemy = new THREE.Mesh(enemyGeo, enemyMat);
-      const radius = 15;
-      const angle = Math.random() * Math.PI * 2;
+      const enemy = enemyTemplate.clone();
+      const radius = 20;
+      const ang = Math.random() * Math.PI*2;
       enemy.position.set(
-        playerGroup.position.x + radius * Math.cos(angle),
-        0.4,
-        playerGroup.position.z + radius * Math.sin(angle)
+        playerGroup.position.x + radius*Math.cos(ang),
+        0,
+        playerGroup.position.z + radius*Math.sin(ang)
       );
-      enemy.userData.speed = 1.5;
       scene.add(enemy);
       enemies.push(enemy);
     }
 
-    function checkCollisions() {
-      // bullets vs enemies
-      for(let i = bullets.length - 1; i >= 0; i--) {
-        for(let j = enemies.length - 1; j >= 0; j--) {
-          if(bullets[i].position.distanceTo(enemies[j].position) < 0.6) {
+    function checkCollisions(){
+      // bullets → enemies
+      for(let i=bullets.length-1; i>=0; i--){
+        for(let j=enemies.length-1; j>=0; j--){
+          if(bullets[i].position.distanceTo(enemies[j].position) < 1.0){
             scene.remove(bullets[i]);
             scene.remove(enemies[j]);
             bullets.splice(i,1);
             enemies.splice(j,1);
             score += 10;
-            document.getElementById("score").textContent = score;
+            document.getElementById('score').textContent = score;
             break;
           }
         }
       }
-      // enemies vs player
-      for(let i = enemies.length - 1; i >= 0; i--) {
-        if(enemies[i].position.distanceTo(playerGroup.position) < 1) {
+      // enemies → player
+      for(let i=enemies.length-1; i>=0; i--){
+        if(enemies[i].position.distanceTo(playerGroup.position) < 1.2){
           hp -= 10;
-          document.getElementById("hp-bar").style.width = hp + "%";
-          document.getElementById("hp-text").textContent = hp;
+          document.getElementById('hp-bar').style.width = hp + '%';
+          document.getElementById('hp-text').textContent = hp;
           scene.remove(enemies[i]);
           enemies.splice(i,1);
-          if(hp <= 0) {
-            endGame();
-            return;
-          }
+          if(hp <= 0){ endGame(); return; }
         }
       }
     }
 
-    function animate() {
+    function animate(){
       if(!gameRunning) return;
       requestAnimationFrame(animate);
       const dt = clock.getDelta();
@@ -400,67 +453,61 @@
       updatePlayer(dt);
 
       // move bullets
-      bullets.forEach((b,i) => {
+      bullets.forEach((b,i)=>{
         b.position.addScaledVector(b.userData.velocity, dt);
-        if(b.position.distanceTo(playerGroup.position) > 50) {
+        if(b.position.distanceTo(playerGroup.position) > 50){
           scene.remove(b);
           bullets.splice(i,1);
         }
       });
 
       // move enemies
-      enemies.forEach(en => {
+      enemies.forEach(en=>{
         const dir = new THREE.Vector3()
                        .subVectors(playerGroup.position, en.position)
                        .setY(0)
                        .normalize();
-        en.position.addScaledVector(dir, en.userData.speed * dt);
+        en.position.addScaledVector(dir, 1.5 * dt);
       });
 
       checkCollisions();
       renderer.render(scene, camera);
     }
 
-    function startGame() {
-      const so = document.getElementById("startOverlay");
-      so.classList.add("fade");
-      setTimeout(() => so.style.display = "none", 600);
+    function startGame(){
+      const so = document.getElementById('startOverlay');
+      so.classList.add('fade');
+      setTimeout(()=> so.style.display='none', 600);
       init();
     }
-
-    function endGame() {
+    function endGame(){
       gameRunning = false;
       clearInterval(spawnInterval);
-      document.getElementById("finalScore").textContent = score;
-      document.getElementById("gameOver").style.display = "flex";
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('gameOver').style.display = 'flex';
     }
-
-    function resetGame() {
-      // clean up
-      bullets.forEach(b => scene.remove(b));
-      enemies.forEach(e => scene.remove(e));
-      bullets = [];
-      enemies = [];
+    function resetGame(){
+      bullets.forEach(b=>scene.remove(b));
+      enemies.forEach(e=>scene.remove(e));
+      bullets = []; enemies = [];
       hp = 100; score = 0; yaw = 0;
-      document.getElementById("hp-bar").style.width = "100%";
-      document.getElementById("hp-text").textContent = "100";
-      document.getElementById("score").textContent = "0";
+      document.getElementById('hp-bar').style.width = '100%';
+      document.getElementById('hp-text').textContent = '100';
+      document.getElementById('score').textContent = '0';
       playerGroup.position.set(0,0,0);
-      document.getElementById("gameOver").style.display = "none";
+      document.getElementById('gameOver').style.display = 'none';
       clock = new THREE.Clock();
-
-      // restart spawn loop
       spawnInterval = setInterval(spawnEnemy, 2000);
       gameRunning = true;
       animate();
     }
 
-    // Bind events
-    document.getElementById("restartGame")
-            .addEventListener("click", resetGame);
-    ["pointerdown","touchstart"].forEach(e =>
-      document.getElementById("startOverlay")
-              .addEventListener(e, startGame, { once:true })
+    // BIND
+    document.getElementById('restartGame')
+            .addEventListener('click', resetGame);
+    ['pointerdown','touchstart'].forEach(evt=>
+      document.getElementById('startOverlay')
+              .addEventListener(evt, startGame, { once:true })
     );
   </script>
 </body>
